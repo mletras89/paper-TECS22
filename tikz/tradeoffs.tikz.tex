@@ -1,0 +1,14 @@
+\newcommand{\tradeoffAC}{
+\tkzKiviatDiagram[scale=1,label distance=.5cm,
+        radial  = 4,
+        gap     = 1,  
+        lattice = 5]{\Large, \Large , \Large ,\Large }
+\tkzKiviatLine[thick,color=blue,mark=none,
+               fill=blue!20,opacity=.5](3.5,2,5,5)
+\tkzKiviatLine[thick,mark=none,fill=green!30,color=black!60,opacity=1](2,5,1,1.5)    
+
+\node at (7,0) {\Huge Cost};
+\node at (-7,0) {\Huge Energy};
+\node at (0,6) {\Huge Performance};
+\node at (0,-6) {\Huge Accuracy};
+}

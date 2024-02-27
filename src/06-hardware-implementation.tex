@@ -1,0 +1,42 @@
+\section{Hardware Implementation}
+\label{sec:hardware}
+Our second major contribution is the introduction of a generic, automatically synthesizable hardware implementation of the proposed approaches for the table-based function approximation.
+\cref{fig:architecture} depicts this hardware architecture.\par
+The architecture's input is a bit vector $\Xi$ to be evaluated by the approximation of $\Fx$.
+The architecture's output is a bit vector $\Upsilon$.
+The input and the output are assumed to be user-defined as fixed point numbers represented by the tuples $(S^{\Xi},W^{\Xi},F^{\Xi})$ and $(S^\Upsilon,W^\Upsilon,F^\Upsilon)$, respectively.
+Here, $S$ indicates the sign, $W$ corresponds to the length of the binary bit string, and $F$ denotes the number of bits used for the fractional part.
+First, the input $\Xi$ passes through an interval selector unit determining the sub-interval containing $\Xi$ and consequently, the values of parameters specific to the sub-interval e.g., the spacing between breakpoints.
+Since the interval selector unit is implemented by using a comparator in each node of the binary tree generated from the set of sub-intervals, a single cycle implementation is not appropriate.
+Moreover, the sequential segmentation approach even generates an unbalanced binary tree, resulting in a generally larger set of cascaded comparators than the other two segmentation approaches. 
+In our design flow, a pre-processing balancing step is therefore applied for any set $\SetPartitions$ of intervals that always delivers a balanced binary tree of comparators.
+Then, the address generator determines the addresses of the stored function values $A_i$ and $A_{i+1}$ corresponding to the  breakpoints enclosing the input.
+These values are read from the \ac{BRAM}.
+In the last stage, the subsequent block performs a linear interpolation to determine $\Upsilon$.\\
+We implemented a design flow that automates the generation of the shown hardware architecture irrespective of the given function and interval.
+First, one of the proposed interval splitting algorithms is selected and applied (see \cref{sec:proposed}).
+The output $\SetPartitions$ of the algorithm is then used to generate a hardware description in VHDL.
+For the determination of the range values $y_i$ to be stored in BRAMs, we employ the HDL coder of Matlab~\cite{MATLAB:2019} and adapt the code generation to instantiate \acp{BRAM}.
+The set $\SetPartitions$ is also directly used to implement the interval selector and the linear interpolation blocks. 
+The arithmetic operations performed to compute the output are pipelined to increase the throughput of the circuit. 
+\begin{figure}[t!]
+	\centering
+	\resizebox{\textwidth}{!}{
+		\begin{tikzpicture}
+		\archTableBased
+		\end{tikzpicture}
+	}
+	\caption{\label{fig:architecture} Proposed generic hardware implementation for table-based function approximation using interval splitting and BRAM instantiation. 
+		An input $\Xi$ of $W^{\Xi}$ bits in pre-specified fixed-point number format is evaluated. 
+		In just three clock cycles, the interval selector determines in which partition $\Xi$ is and its respective base address $A_i$ in the BRAM, as well as, a valid address is generated.
+		In the next clock cycle, the two breakpoints required to evaluate $\Xi$ are looked up in the \ac{BRAM}. 
+		Then, in another five clock cycles, the linear interpolation block calculates the approximated value of $\Fx$.
+		The shown implementation is pipelined and has a latency of $L=9$ clock cycles.
+	}
+\end{figure}
+The interval selector and address generator take three clock cycles together to generate valid address signals. 
+The $y$ values are obtained from the BRAMs in the next clock cycle. 
+Then, the pipelined linear interpolation block requiring five clock cycles produces the final output. 
+Therefore, the latency ($L$) of the proposed architecture is constant at $L=9$ per function evaluation. 
+Note that this latency is independent of the function to be approximated, number formats, and number of sub-intervals determined by interval splitting. 
+In the following, we evaluate the implementation of our segmentation approach in a target \ac{FPGA} device to measure the memory footprint reductions, logic utilization (LUTs), BRAM utilization, and the achievable clock frequency.

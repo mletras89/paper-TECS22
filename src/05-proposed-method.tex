@@ -1,0 +1,564 @@
+\section{Interval Splitting Algorithms}
+\label{sec:proposed}
+Uniform spacing schemes such as even spacing (see the $\Reference$ approach in \cref{sec:reference}) or power of two spacing do not consider the local variation of many functions in the interval of approximation.
+This section introduces three algorithmic approaches to  partition a given interval $[\LowerBound,\UpperBound)$ into a set of non-uniform sub-intervals and determine a uniform spacing of breakpoints in each sub-interval given a maximum tolerable approximation error $\AbsError$.
+The proposed algorithms perform the segmentation of the interval $[\LowerBound,\UpperBound)$ into a partition of sub-intervals exploiting the granularity in the spacing according to the steepness of a given function.
+Here, we trade between the number of generated sub-intervals and the memory footprint reduction.
+%The presented algorithms differ mainly in the way the sub-interval partitions are computed. 
+The presented algorithms differ mainly in the heuristic proposed to compute the set of sub-interval partitions.
+The first two algorithms (\cref{alg:alg1,alg:alg2}) split a given interval $[\LowerBound,\UpperBound)$ into two sub-intervals recursively until a corresponding stopping criterion is satisfied. 
+\cref{alg:alg1}, called $\Binary$ always splits a sub-interval at the midpoint.
+In contrast, \cref{alg:alg2}, called $\Hierarchical$ finds the best splitting point by sweeping over the given interval such that the reduction in memory footprint $\MemF$ when splitting is maximized. 
+Here, the step size for the sweep is given as an input.
+Finally, \cref{alg:alg3} named $\Sequential$ also performs a sweep-based interval splitting. 
+However here, interval splitting is performed in a single sweep over the overall interval $[\LowerBound,\UpperBound)$.
+%The third and last approach (\cref{alg:alg3}) named $\Sequential$ also sweeps over the given interval until the sweep value becomes equal to the upper bound of the interval. 
+%However, the latter approach is iterative and produces the set of sub-intervals after a single sweep. This algorithm will be called $sequential segmentation$. Common to all three $proposed$ approaches is that a splitting point is accepted or rejected based on a given threshold.  
+\newlength{\commentWidth}
+\setlength{\commentWidth}{7cm}
+\newcommand{\atcp}[1]{\tcp*[r]{\makebox[\commentWidth]{#1\hfill}}}
+\begin{algorithm}[t]
+	\small
+	\SetAlgoLined
+	\SetKwFunction{InsertPartition}{Binary}
+	\SetKwFunction{FMain}{Binary}
+	\SetKwProg{Fn}{Function}{}{}
+	\Fn{\FMain{$\ReductionThreshold$,$\AbsError$,$f$,$\Partition{i}$,$\Partition{i+1}$}}{
+		
+		\SetKwInOut{Input}{Inputs}\SetKwInOut{Output}{Outputs}
+			\KwIn{$f$ is the function to be approximated\\
+			\hspace{10mm}$\Partition{i}$ is the lower bound of the interval\\
+			\hspace{10mm}$\Partition{i+1}$ is the upper bound of the interval\\
+			\hspace{10mm}$\ReductionThreshold$ is the reduction threshold (0,1] \\
+			\hspace{10mm}$\AbsError$ is the maximum approximation error\\
+		}
+		\KwOut{$\SetPartitions=\{\Partition{0}, \Partition{1}, \ldots, \Partition{n}  \}$ is the set of sub-interval boundaries\\
+			
+		}
+		\Begin{
+			
+			$\SetPartitions \leftarrow \{\Partition{i},\Partition{i+1}\} $\tcp*[f]{\footnotesize Initial set of sub-intervals boundaries} \\  
+			$\Spacing{p} \leftarrow \delta(f,\AbsError,[\Partition{i}, \Partition{i+1}))$ \tcp*[f]{\footnotesize Calculate the spacing in the interval} \\
+			$\NBreakpoints{p}\leftarrow \MemF(\Spacing{p},[\Partition{i}, \Partition{i+1}))$ \tcp*[f]{\footnotesize Calculate the $\MemF$ of the interval} \\
+			
+			$bp \leftarrow \dfrac{\Partition{i} + \Partition{i+1}}{2}$ \tcp*[f]{\footnotesize Midpoint between $\Partition{i}$ and $\Partition{i+1}$} \\
+			
+			
+			$\Spacing{bp_1} \leftarrow \delta(f,\AbsError,[\Partition{i}, bp))$ \tcp*[f]{\footnotesize Calculate the spacing of sub-intervals} \\
+			$\Spacing{bp_2} \leftarrow \delta(f,\AbsError,[bp,\Partition{i+1}))$ \\ %\tcp*[f]{\footnotesize sub-intervals} \\
+			
+			\If{$\Spacing{bp_1} \neq  \Spacing{bp_2} $}
+			{
+				$\NBreakpoints{bp_1}\leftarrow \MemF(\Spacing{bp_1},[\Partition{i}, bp))$ \tcp*[f]{\footnotesize Calculate the $\MemF$ of sub-intervals}  \\
+				$\NBreakpoints{bp_2}\leftarrow \MemF(\Spacing{bp_2},[bp, \Partition{i+1}))$ \\ %\tcp*[f]{\footnotesize sub-intervals} \\
+				\If(\tcp*[f]{\footnotesize If \textbf{true}, accept sub-interval split}){ $\NBreakpoints{bp_1}+\NBreakpoints{bp_2}  < \NBreakpoints{p}  \cdot \ReductionThreshold$}{
+					\vspace{0.2cm}
+					$\SetPartitions \leftarrow \{\InsertPartition(\ReductionThreshold,\AbsError,f,\Partition{i},bp) \cup \InsertPartition(\ReductionThreshold,\AbsError,f,bp,\Partition{i+1}) \}$ \\
+					\tcp*[f]{\footnotesize Recursive call for sub-intervals $[\Partition{i},bp)$ and $[bp,\Partition{i+1})$}
+				}
+				%{}
+				%{	\textbf{return} $ \SetPartitions $ \\}
+			}
+			\textbf{return} $ \SetPartitions $ \\	
+			
+		}	
+		
+	}
+	\textbf{End Function}
+	\caption{\small Binary Interval Splitting $[\Partition{i}, \Partition{i+1})$}\label{alg:alg1}
+	%	\vspace{-0.5cm}
+\end{algorithm}
+\subsection{Binary Segmentation}\label{bin_seg}
+\cref{alg:alg1} performs a $\Binary$ of a given interval $[\Partition{i}, \Partition{i+1})$ in which the function $\Fx$ is to be approximated. 
+The inputs of \cref{alg:alg1} are the function $\Fx$, the interval $\Interval$, the maximum approximation error $\AbsError$ and a threshold value $\ReductionThreshold$ which determines whether a new sub-interval split is accepted.
+\textit{Binary segmentation} determines a partition $\SetPartitions$ of sub-intervals, from which a set of spacings $\SetSpacings$ and a set $\SetNBreakpoints$ containing the numbers of breakpoints in each sub-interval can be obtained.
+Each element of $\Partition{i} \in \SetPartitions$  represents a left (sub-interval) delimiter value. The number of sub-intervals is thus $|\SetPartitions|-1$.
+As an example for illustration, assume Algorithm 1 determines the sub-interval splitting $\SetPartitions=\{\Partition{0}, \Partition{1}, \Partition{2}\}$ for a given function, that yields the sets of values $\SetSpacings=\{\Spacing{0},\Spacing{1}\}$ and $\SetNBreakpoints=\{\NBreakpoints{0},\NBreakpoints{1}\}$.
+$P$ represents a partitioning of a given interval into two sub-intervals
+$[\Partition{0},\Partition{1})$ and $[\Partition{1},\Partition{2})$.
+Here, $\Spacing{0}$ and $\NBreakpoints{0}$ correspond to the spacing and the number of breakpoints for the sub-interval $[\Partition{0},\Partition{1})$ as well as $\Spacing{1}$ and $\NBreakpoints{1}$ correspond to sub-interval $[\Partition{1},\Partition{2})$.
+The memory footprint corresponding to $P$ is therefore given by:
+\begin{equation}
+\MemF^P([\Partition{0},\Partition{|\SetPartitions|-1})) = \sum^{|\SetPartitions|-1}_{j=0} \NBreakpoints{j}
+\label{eq:memFProposed}
+\end{equation}
+\textit{Binary segmentation} is a recursive algorithm, which evaluates the reduction in $\MemF$ obtained by splitting the current interval $[\Partition{i},\Partition{i+1})$ at the midpoint $bp$. 
+Initially, the lower and upper bounds of the interval of approximation ($\Interval$) are provided as the inputs $\Partition{i}=\LowerBound$ and $\Partition{i+1}=\UpperBound$ to the function $Binary$. 
+The first step is to initialize $\SetPartitions$ as $\{\Partition{i}, \Partition{i+1}\}$ (see Line $4$ in \cref{alg:alg1}). 
+The spacing $\Spacing{p}$ and the number of breakpoints $\NBreakpoints{p}$ are obtained using the $\Reference$ approach in the interval $[\Partition{i}, \Partition{i+1})$ (see \cref{sec:reference}).\\
+The midpoint $bp$ of the input interval is used to create the left sub-interval $bp_1=[\Partition{i},bp)$ and right sub-interval $bp_2=[bp,\Partition{i+1})$. 
+The spacings $\delta_{bp_1}$ and $\delta_{bp_2}$, and the number of breakpoints $\NBreakpoints{bp_1}$ and $\NBreakpoints{bp_2}$ of sub-intervals $bp_1$ and $bp_2$ are then calculated according to \cref{eq:spacing_err} and \cref{eq:six} (see Lines 8-12 in \cref{alg:alg1}). 
+If the sum of $\NBreakpoints{bp_1}$ and $\NBreakpoints{bp_2}$ denoting the memory footprints of $bp_1$ and $bp_2$ is less than a specified fraction (threshold $\ReductionThreshold$) of $\NBreakpoints{p}$ (see Line 13 in \cref{alg:alg1}), the memory footprint reduction and thus split are accepted and the $binary$ function is called recursively for the sub-intervals $bp_1$ and $bp_2$, respectively.
+Otherwise, the algorithm terminates and returns the current input interval boundaries ($\{p_i, p_{i+1}\}$).
+The final set $P$ returned is the union of all the returned sub-intervals. 
+\begin{figure}[t!]
+	\centering
+	\begin{subfigure}[b]{\textwidth}
+		\centering
+		\begin{tikzpicture}[scale=1]
+		\pgfplotsset{%compat=1.14,         
+			width=10cm,     
+			height=5cm, 
+		}
+		\begin{axis}[grid=both,
+		ymin=-0.5,
+		xmax=15.7,ymax=3,
+		axis lines=middle,
+		enlargelimits
+		]
+		
+		\addplot+[ycomb,blue,line width=0.1pt,domain=0.625:2.5,samples=95,opacity=0.5] {ln(x)};  
+		\addplot+[ycomb,blue,line width=0.1pt,domain=2.5:4.375,samples=27,opacity=0.5,mark=o] {ln(x)};  
+		\addplot+[ycomb,blue,line width=0.1pt,domain=4.375:8.125,samples=29,opacity=0.5,mark=o] {ln(x)};  
+		\addplot+[ycomb,blue,line width=0.1pt,domain=8.125:15.625,samples=31,opacity=0.5,mark=o] {ln(x)};   
+		
+		\addplot[black,mark=none,line width=0.5pt,domain=0.625:15.625,samples=400,color=ao]  {ln(x)} node[above left,yshift=-0.5cm,xshift=-4.5cm] {$\sum \kappa_j=182$}; 
+		
+		\draw[very thick, densely dashed,draw=red] (axis cs: 0.625,0) -- (axis cs:0.625,4);
+		\draw[very thick, densely dashed,draw=red] (axis cs: 2.5,0) -- (axis cs:2.5,4);
+		\draw[very thick, densely dashed,draw=red] (axis cs:4.375,0) -- (axis cs:4.375,4);
+		\draw[very thick, densely dashed,draw=red] (axis cs:8.125,0) -- (axis cs:8.125,4);
+		\draw[very thick, densely dashed,draw=red] (axis cs:15.625,0) -- (axis cs:15.625,4);
+		\end{axis}
+		\node at (0.8,3.80) {$\Partition{0}$};
+		\node at (1.6,3.80) {$\Partition{1}$};
+		\node at (2.4,3.80) {$\Partition{2}$};
+		\node at (4.2,3.80) {$\Partition{3}$};
+		\node at (7.7,3.80) {$\Partition{4}$};
+		
+		\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4pt},yshift=0pt] (0.66,0.1) -- (1.6,0.1) node [black,midway,xshift=-0.4cm,yshift=-0.75cm]{\begin{tabular}{c} $\Spacing{0}=0.02$ \\ $\NBreakpoints{0}=97$  \end{tabular}};
+		\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4pt},yshift=0pt] (1.6,0.1) -- (2.45,0.1) node [black,midway,xshift=0.1cm,yshift=-0.75cm]{\begin{tabular}{c} $\Spacing{1}=0.08$ \\ $\NBreakpoints{1}=25$  \end{tabular}};
+		\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4pt},yshift=0pt] (2.45,0.1) -- (4.2,0.1) node [black,midway,xshift=0.3cm,yshift=-0.75cm] {\begin{tabular}{c} $\Spacing{2}=0.14$ \\ $\NBreakpoints{2}=29$  \end{tabular}};
+		\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4pt},yshift=0pt] (4.2,0.1) -- (7.7,0.1) node [black,midway,xshift=0cm,yshift=-0.75cm] {\begin{tabular}{c} $\Spacing{3}=0.26$ \\ $\NBreakpoints{3}=31$  \end{tabular}};
+		\end{tikzpicture}
+		\caption{\label{fig:samples}Function approximation of $log(x)$ obtained by $\Binary$.}
+	\end{subfigure}
+	\begin{subfigure}[b]{\textwidth}
+		\centering
+		\begin{tikzpicture}[scale=0.45]
+		\ErrorPlots%\right) 
+		\end{tikzpicture}
+		\caption{\label{fig:proposedError}Error margins obtained by \Binary.}
+	\end{subfigure}
+	\caption{\label{fig:proposed} For a user-given maximal approximation error bound of $\AbsError=1.22E-04$, the algorithm $\Binary$ identifies the partition $\SetPartitions=\{0.625,2.5,4.375,8.125,15.625\}$ for splitting threshold $\ReductionThreshold=0.3$ describing four sub-intervals $[0.625,2.5)$, $[2.5,4.375)$, $[4.375,8.125)$ and $[8.125,15.625)$.
+		Here, a total of $\MemF = 182$ entries represents an overall reduction in memory footprint of $76\,\%$ compared to the $\Reference$ approach (see \cref{fig:entries}).
+	}
+	%\vspace{-0.5cm}
+\end{figure}
+The value $\ReductionThreshold \in (0,1]$ indicates the threshold of an acceptable memory footprint reduction. 
+E.g., $\ReductionThreshold=0.3$ indicates that an interval split must lead to a footprint reduction of at least $30\,\%$ of the given interval in order to continue splitting the left and right sub-intervals.\\
+\cref{fig:proposed} illustrates the proposed recursive sub-interval splitting approximation method using as an example, the function $f=log(x)$ to be approximated in the interval $[p_i,p_{i+1})=[0.625,15.625)$ with a maximum approximation error of $\AbsError=1.22E-04$ and splitting threshold $\ReductionThreshold=0.3$. 
+To find a partition of the interval, $\Binary$ is performed with the inputs $\ReductionThreshold$, $\AbsError$, $f$ and $[p_i,p_{i+1})$.
+Using the $\Reference$ approach, the uniform spacing $\Spacing{p}$ and memory footprint $\MemF$ are obtained as $\Spacing{p}=0.019$ and $\MemF=770$, respectively.
+%At this point, the set of partitions $\SetPartitions=\{0.625,15.625\}$, the set of spacings $\SetSpacings=\{0.019\}$ and the list of breakpoint numbers is $\SetNBreakpoints=\{770\}$.
+When applying \cref{alg:alg1}, the middle point $bp=8.125$ of the interval $[0.625,15.625)$ is determined first.
+The left and right sub-intervals are derived using $bp$, thus $bp_1=[0.625,8.125)$ and $bp_2=[8.125,15.625)$.
+After calculating the spacing $\Spacing{bp_1}=0.0195$ and $\Spacing{bp_2}=0.25$ for these two sub-intervals, respectively, the number of breakpoints results in $\NBreakpoints{bp_1}=384$ and $\NBreakpoints{bp_2}=31$.
+The new partition has a memory footprint of $\MemF^P=(384+31) = 415$.
+Compared to the memory footprint of 770, the achieved reduction is $46\,\%$ which is greater than the required threshold of $30\,\%$ ($\ReductionThreshold=0.3$).
+Then, the function $binary$ is called recursively for the accepted right and left sub-intervals $[0.625,8.125)$ and $[8.125,15.625)$, respectively.
+%Thus $InsertPartition$ is performed again with  $[0.625,8.125)$ and  $[8.125,15.625)$ as input intervals.
+The previous is repeated until no more splittings can be achieved with an acceptable memory footprint reduction.
+\cref{alg:alg1} stops with the final partition $\SetPartitions=\{0.625,2.5,4.375,8.125,15.625\}$.
+Hence, four sub-intervals $[0.0625,2.5)$, $[2.5,4.375)$, $[4.375,8.125)$, and $[8.125,15.625)$ were identified (see \cref{fig:proposed}).
+The spacings and the number of breakpoints of each sub-intervals are $\SetSpacings=\{0.02,0.08,0.13,0.25\}$ and $\SetNBreakpoints=\{97,25,29,31\}$.
+From the set of memory footprints $\SetNBreakpoints$, the overall memory footprint $\MemF^P([0.625,15.625))=(97+25+29+31)=182$ is calculated.
+Compared to the reported memory footprint $\MemF^R=770$ for the same function, interval, and error bound (see \cref{fig:tabApp}) using the $\Reference$ approach, $\Binary$ is thus able to reduce the memory footprint by $76\,\%$ while respecting the maximum approximation error bound imposed by the given $\AbsError$ (see \cref{fig:proposedError}).\\
+However, using the midpoint in the partitioning heuristic might lead to a sub-optimal exploration of the partitions in approximation of a given function $f(x)$. The next section introduces an alternative recursive approach which employs a different heuristic in attempt to achieve even larger memory footprint reductions.
+\subsection{Hierarchical Segmentation}\label{hier_seg}
+\textit{Hierarchical segmentation} is an alternative recursive interval splitting heuristic described by the function $Hierarchical$ in \cref{alg:alg2}. 
+For each candidate interval $[\Partition{i},\Partition{i+1})$, a linear sweep is performed instead of just using the midpoint to split the interval.
+\textit{Hierarchical segmentation} then chooses the splitting point $sp$ with the highest memory footprint reduction and performs a split at $sp$, if the reduction is acceptable.
+In order to reduce the computational effort, a step size $\StepSize$ denotes the uniform distance between two adjacent splitting point candidates.
+The value of $\StepSize$, the function $f$, the interval $[\Partition{i},\Partition{i+1})$, the reduction threshold $\ReductionThreshold$, and the maximum approximation error $\AbsError$ are passed as inputs to \cref{alg:alg2} (see Line 2 of \cref{alg:alg2}).
+The output is the set $\SetPartitions$, from which a set of spacings $\SetSpacings$ and a set of number of breakpoints $\SetNBreakpoints$ are determined (see Line 3 of \cref{alg:alg2}).\\
+Similar to \cref{alg:alg1}, \cref{alg:alg2} initializes the set $\SetPartitions=\{\Partition{i},\Partition{i+1}\}$ with the lower and upper bounds of a given input interval $[\Partition{i},\Partition{i+1})$ (see Line 4 in \cref{alg:alg2}).
+The algorithm then computes the maximal number of splitting point candidates $j_{max}$ based on the step size $\StepSize$ as a parameter (see Line 5 in \cref{alg:alg2}). 
+In the next step, we evaluate all the possible memory footprints by splitting the input interval at each candidate point. 
+The splitting point $sp$ is then chosen as the point delivering the smallest memory footprint (see Lines 6 and 7 in \cref{alg:alg2}).
+The left and right sub-intervals are derived as $sp_1=[\Partition{i},sp)$ and $sp_2=[sp,\Partition{i+1})$, respectively.
+The spacings $\Spacing{sp_1}$ and $\Spacing{sp_2}$ and number of breakpoints $\NBreakpoints{sp_1}$ and $\NBreakpoints{sp_2}$ of sub-intervals $sp_1$ and $sp_2$ are calculated using the $\Reference$ approach (see Lines 9-12 in \cref{alg:alg2}). 
+If the sum of $\NBreakpoints{sp_1}$ and $\NBreakpoints{sp_2}$ denoting the memory footprint of an interval split at the position $sp$ is less than a specified fraction $\ReductionThreshold$ of $\NBreakpoints{p}$ (the memory footprint over the interval $[\Partition{i},\Partition{i+1})$), the split is accepted and the hierarchical function is called recursively to explore the right and left sub-intervals (see Line 13 in \cref{alg:alg2}).
+\begin{algorithm}[t!]
+	\small
+	\SetAlgoLined
+	\SetKwFunction{Hierarchical}{Hierarchical}
+	\SetKwFunction{FMain}{Hierarchical}
+	\SetKwProg{Fn}{Function}{}{}
+	\Fn{\FMain{$\ReductionThreshold$,$\AbsError$,$f$,$\Partition{i}$,$\Partition{i+1}$}}{
+		%\SetKwInOut{Input}{Inputs}\SetKwInOut{Output}{Outputs}
+			\KwIn{$f$ is the function to be approximated\\
+			\hspace{10mm}$\Partition{i}$ is the lower bound of the interval\\
+			\hspace{10mm}$\Partition{i+1}$ is the upper bound of the interval\\
+			\hspace{10mm}$\ReductionThreshold$ is the reduction threshold (0,1] \\
+			\hspace{10mm}$\AbsError$ is the maximum approximation error\\
+			\hspace{10mm}$\StepSize$ is the sweep step size\\
+		}
+		\KwOut{$\SetPartitions=\{\Partition{0}, \Partition{1}, \ldots, \Partition{n}  \}$ is set of sub-interval boundaries\\
+			
+		}
+		\Begin{
+			
+			$\SetPartitions \leftarrow \{\Partition{i},\Partition{i+1}\} $\tcp*[f]{\footnotesize Initial set of sub-intervals boundaries} \\  
+			$j_{max} \leftarrow  \bigg\lfloor{\dfrac{\Partition{i+1} - \Partition{i}}{\varepsilon}} \bigg\rfloor$ \tcp*[f]{\footnotesize Calculate the number of splitting point candidates} \\
+			{\scriptsize $j^* \leftarrow \underset{1\leq j \leq j_{max}}{\operatorname{arg\hspace{1mm}min}}\MemF(\delta(f,\AbsError,[\Partition{i},\Partition{i}+j\times \StepSize)),[\Partition{i},\Partition{i}+j\times\StepSize)) + \MemF(\delta(f,\AbsError,[\Partition{i}+j\times\StepSize,\Partition{i+1})),[\Partition{i}+j\times\StepSize,\Partition{i+1}))$} \\
+			%			$\begin{aligned}
+			%			j^* \leftarrow \underset{1\leq j \leq j_{max}}{\operatorname{arg\hspace{1mm}min}}\MemF(\delta(f,\AbsError,[\Partition{i}, \Partition{i}&+j\times \varepsilon]),[\Partition{i}, \Partition{i}+j\times \varepsilon]) +\\
+			%			&+ \MemF(\delta(f,\AbsError,[\Partition{i}+j\times \varepsilon,\Partition{i+1}]),[\Partition{i}+j\times \varepsilon,\Partition{i+1}]) 	
+			%			\end{aligned}$
+			$sp \leftarrow \Partition{i}+j^*\times \varepsilon$ \tcp*[f]{\footnotesize Determine the splitting point} \\
+			$\NBreakpoints{p}\leftarrow \MemF(\Spacing{p},[\Partition{i}, \Partition{i+1}))$ \tcp*[f]{\footnotesize Calculate the $\MemF$ of the interval} \\
+			
+			$\Spacing{sp_1} \leftarrow \delta(f,\AbsError,[\Partition{i}, sp))$ \tcp*[f]{\footnotesize Calculate the spacing of sub-intervals} \\
+			$\Spacing{sp_2} \leftarrow \delta(f,\AbsError,[sp,\Partition{i+1}))$\\
+			%\If{$\Spacing{sp_1} \neq  \Spacing{sp_2} $}
+			%{
+			$\NBreakpoints{sp_1}\leftarrow \MemF(\Spacing{sp_1},[\Partition{i}, sp))$ \tcp*[f]{\footnotesize Calculate the $\MemF$ of sub-intervals}  \\
+			$\NBreakpoints{sp_2}\leftarrow \MemF(\Spacing{sp_2},[sp, \Partition{i+1}))$ \\
+			
+			\If(\tcp*[f]{\footnotesize If \textbf{true}, accept interval split}){ $\NBreakpoints{sp_1}+\NBreakpoints{sp_2}  < \NBreakpoints{p}  \cdot \ReductionThreshold$}{
+				\vspace{0.2cm}
+				%$\SetPartitions \leftarrow$ \{\InsertPartition{$\ReductionThreshold$,$\AbsError$,$f$,$\Partition{i}$,$sp$,$\varepsilon$} \InsertPartition{$\ReductionThreshold$,$\AbsError$,$f$,$sp$,$\Partition{i+1}$}\}\\ \tcp*[f]{\footnotesize Updating $\SetPartitions$}\\
+				$\SetPartitions \leftarrow \{\Hierarchical(\ReductionThreshold,\AbsError,f,\Partition{i},sp,\varepsilon) \cup \Hierarchical(\ReductionThreshold,\AbsError,f,sp,\Partition{i+1},\varepsilon) \}$\\ \tcp*[f]{\footnotesize Recursive call for sub-intervals $[\Partition{i},sp)$ and $[sp,\Partition{i+1})$}\\
+				
+			}
+			{\textbf{return} $ \SetPartitions $ }
+			%}
+		}	
+	}
+	\textbf{End Function}
+	\caption{\small  Hierarchical Interval Splitting $[\Partition{i}, \Partition{i+1})$}\label{alg:alg2}
+\end{algorithm}
+Otherwise, the algorithm terminates returning the current upper and lower interval bounds (see Line 16 in \cref{alg:alg2}). 
+The final set $\SetPartitions$ is then returned as the union of split intervals.\\
+\cref{fig:hierarchical} shows the hierarchical segmentation approach over the interval $[\Partition{i},\Partition{i+1})=[0.625,15.625)$.
+E.g., let $f(x)=log(x)$, the reduction threshold $\ReductionThreshold=0.3$, the maximum absolute error $\AbsError=1.22E-04$, and the sweep size $\StepSize=0.015$.
+At this point, the number of candidate splitting points is $j_{max}=\frac{15.625-0.625}{0.015}=1000$.
+This set of points can be expressed in terms of $\StepSize$ and $j_{max}$ as $\{\Partition{i}+j\cdot\StepSize|i\leq j<j_{max}\}$.
+After evaluating each candidate, \cref{alg:alg2} determines $sp=2.90$ as the best candidate resulting in the left sub-interval $sp_1=[0.625,2.90)$ and the right sub-interval $sp_2=[2.90,15.625)$. 
+$\NBreakpoints{sp_1}$ is equal to 117 and $\NBreakpoints{sp_2}$ is 141.
+The partition has a memory footprint of $\NBreakpoints{sp_1}+\NBreakpoints{sp_2}=(117+141)=258$ which implies a $66.5\,\%$ reduction in memory footprint compared to $\MemF^R$ obtained by the $\Reference$ approach. 
+The achieved reduction is greater than the required threshold reduction of $30\,\%$ ($\ReductionThreshold=0.3$).
+Thus, the recursive splitting continues for the sub-intervals $sp_1$ and $sp_2$.
+The previous steps are repeated until no more splitting can be performed resulting in the set $\SetPartitions=\{0.6250,1.2106,2.9073,6.2556,15.6250\}$, as illustrated in \cref{fig:hierarchical} where the set of spacings $\SetSpacings=\{0.01,0.06,0.09,0.19\}$, and the set of breakpoints $\SetNBreakpoints=\{30,25,37,49\}$.
+The value of $\MemF^P([0.625,15.625))=30+45+37+49=161$. 
+Hierarchical segmentation is able to reduce the memory footprint by $79\,\%$ with respect to $\Reference$ approach and by $11.5\,\%$ compared to binary segmentation (\cref{alg:alg1}).
+%It is important to note here that the difference between the reductions produced by the previously proposed methods decreases with increase in number of sub-intervals.
+\begin{algorithm}[t]
+	\small
+	\SetAlgoLined
+	\SetKwFunction{Sequential}{Sequential}
+	\SetKwFunction{FMain}{Sequential}
+	\SetKwProg{Fn}{Function}{}{}
+	\Fn{\FMain{$\ReductionThreshold$,$\AbsError$,$f$,$\LowerBound$,$\UpperBound$}}{
+		
+		\SetKwInOut{Input}{Inputs}\SetKwInOut{Output}{Outputs}
+		\KwIn{$f$ is the function to be approximated\\
+			\hspace{10mm}$\LowerBound$ is the lower bound of the interval\\
+			\hspace{10mm}$\UpperBound$ is the upper bound of the interval\\
+			\hspace{10mm}$\ReductionThreshold$ is the reduction threshold (0,1]\\
+			\hspace{10mm}$\AbsError$ is the maximum approximation error\\
+			\hspace{10mm}$\varepsilon$ is the sweep step size\\
+		}
+		\KwOut{$\SetPartitions=\{\Partition{0}, \Partition{1}, \ldots, \Partition{n}  \}$ is the set of sub-interval boundaries\\
+			
+		}
+		\vspace{0.2cm}
+		$\SetPartitions \leftarrow \{\LowerBound\}$ \tcp*[f]{\footnotesize Initialize $P$ with the lower bound of the interval} \\  
+		$x_p\leftarrow x_0$ \\%\tcp*[f]{\footnotesize the last element of $P$} \\
+		$i_{max} \leftarrow  \bigg\lfloor{\dfrac{a}{\varepsilon}} \bigg\rfloor$ \tcp*[f]{\footnotesize Calculate the number of splitting point candidates} \\
+		$\Spacing{p} \leftarrow \delta(f,\AbsError,[x_p,\UpperBound))$ \tcp*[f]{\footnotesize Calculate the spacing of sub-interval $[x_p,\UpperBound]$} \\
+		$\NBreakpoints{p}\leftarrow \MemF(\Spacing{p},[x_p,x_0+a))$ \tcp*[f]{\footnotesize Calculate the $\MemF$ of sub-interval $[x_p,\UpperBound]$} \\
+		\For{$i\leftarrow 1$ \KwTo $i_{max}$}{\label{forins}
+			$sp \leftarrow x_0+i\cdot\varepsilon$\tcp*[f]{\footnotesize Determine the splitting point}\\
+			\vspace{0.1cm}
+			$\Spacing{sp_1} \leftarrow \delta(f,\AbsError,[x_p,sp))$ \tcp*[f]{\footnotesize Calculate the spacing of sub-intervals} \\
+			$\Spacing{sp_2} \leftarrow \delta(f,\AbsError,[sp,x_0+a))$ \\
+			
+			$\NBreakpoints{sp_1}\leftarrow \MemF(\Spacing{sp_1},[x_p,sp))$ \tcp*[f]{\footnotesize Calculate the $\MemF$ of sub-intervals}  \\
+			$\NBreakpoints{sp_2}\leftarrow \MemF(\Spacing{sp_2},[sp,x_0+a))$ \\
+			
+			\If(\tcp*[f]{\footnotesize If \textbf{true}, accept the interval split}){ $\NBreakpoints{sp_1}+\NBreakpoints{sp_2}  < \NBreakpoints{\Partition{}}  \cdot \ReductionThreshold$}{
+				$\SetPartitions \leftarrow \SetPartitions \cup \{sp\}$ \tcp*[f]{\footnotesize Updating $\SetPartitions$}\\
+				$x_p\leftarrow sp$ \tcp*[f]{\footnotesize Updating $x_p$} \\
+				$\Spacing{p} \leftarrow \delta(f,\AbsError,[x_p,x_0+a))$ \tcp*[f]{\footnotesize Calc. the spacing} \\
+				$\NBreakpoints{p}\leftarrow \MemF(\Spacing{p},[x_p,x_0+a))$ \tcp*[f]{\footnotesize Calc. the $\MemF$ of the interval to split} \\
+			}
+			
+		}
+		$\SetPartitions \leftarrow \SetPartitions \cup \{x_0+a\}$ \tcp*[f]{\footnotesize Updating $P$ with the upper bound of the interval} \\  
+	}	
+	\textbf{End Function}
+	\caption{\small Sequential Interval Splitting $[\LowerBound,\UpperBound)$}\label{alg:alg3}
+\end{algorithm}
+\subsection{Sequential Segmentation} 
+%The third presented approach is called \textit{sequential segmentation}, which performs a linear sweep of the input interval as the \textit{hierarchical segmentation} (see \cref{alg:alg2}).
+\cref{alg:alg3} describes the third approach called \textit{sequential segmentation} and receives as inputs also the function $\Fx$ to approximate, the interval $[\LowerBound, \UpperBound)$, maximum approximation error $\AbsError$, the reduction threshold $\ReductionThreshold$ and a sweep step size $\varepsilon$.
+Sequential segmentation performs a linear sweep of the overall input interval similar to the hierarchical segmentation.
+However, it produces a partition $P$ of a given interval $[\LowerBound, \UpperBound)$ iteratively in a single sweep.
+The set of splitting point candidates can be represented as $\{sp \hspace{1mm}|\hspace{1mm}sp=x_0 + i \cdot \varepsilon\}$ where $1\leq i < i_{max}$.
+Here, the distance between two adjacent points in the set is $\StepSize$ and the number of candidates $i_{max}$ is determined based on the length of interval $a$ and the step size $\varepsilon$ (see Line 2 in \cref{alg:alg3}).\\
+\cref{alg:alg3} initializes $P$ and $x_p$ with the lower bound $x_0$ of the input interval (see Lines 1-2 in \cref{alg:alg3}).
+The value of $x_p$ always corresponds to the last entry of the set of partitions $P$. 
+The spacing $\Spacing{p}$ and the memory footprint $\NBreakpoints{p}$ of the input interval $\Interval$ are calculated following the $\Reference$ approach (\cref{sec:reference}).
+The algorithm iterates through the sweep candidates $sp$ and calculates the memory footprints $\NBreakpoints{sp_1}$ and $\NBreakpoints{sp_2}$ of the sub-intervals $sp_1=[x_p,sp)$ and $sp_2=[sp,x_0+a)$, respectively.
+If the memory footprint of the input interval $[\LowerBound, \UpperBound)$ split at $sp$ is less than a fraction $\ReductionThreshold$ of $\NBreakpoints{p}$, then the set $\SetPartitions$ is updated with $sp$ as a new splitting point.
+%If the reduction in $M_f$ after splitting exceeds $\ReductionThreshold$ i.e. $\NBreakpoints{sp_1}+\NBreakpoints{sp_2} < \ReductionThreshold \cdot \NBreakpoints{p}$, then $P$ is updated with $sp$ as a splitting point.
+The values $x_p$, $\Spacing{p}$ and $\NBreakpoints{p}$ are updated accordingly (see Lines 13-16 in \cref{alg:alg3}).
+\cref{alg:alg3} stops with the last sweep value which is one step size smaller than $x_0+a$.\\
+The main difference between \textit{sequential segmentation} and \textit{binary} as well as \textit{hierarchical segmentation} is how the partition points are generated. 
+Here, \textit{sequential segmentation} sweeps from left to right to find the set of partitions, and only one iteration over the given interval is required.
+In contrast, \textit{binary} and \textit{hierarchical} perform a recursive exploration of each split interval. 
+Every time a new partition point is found, two new sub-intervals located at the right and the left are generated and explored until no more acceptable memory footprint reductions are achieved. \\
+\cref{fig:sequential} presents the partition obtained by the algorithm \textit{sequential segmentation} for $f(x)=log(x)$, over the interval $[0.625,15.625)$, the reduction threshold $\ReductionThreshold=0.3$, maximum absolute error $\AbsError=1.22E-04$, and the sweep size $\StepSize=0.3$.
+\begin{figure}[t!]
+	\centering
+	\begin{subfigure}[b]{0.45\textwidth}
+		\centering
+		\resizebox{\textwidth}{!}{
+			\begin{tikzpicture}[scale=1]
+			\pgfplotsset{%compat=1.14,         
+				width=10cm,     
+				height=5cm, 
+			}
+			\begin{axis}[grid=both,
+			ymin=-0.5,
+			xmax=15.7,ymax=3,
+			axis lines=middle,
+			enlargelimits
+			]
+			\addplot+[ycomb,blue,line width=0.1pt,domain=0.625:1.21,samples=30,opacity=0.5] {ln(x)};  
+			\addplot+[ycomb,blue,line width=0.1pt,domain=1.21:2.9,samples=45,opacity=0.5,mark=o] {ln(x)};  
+			\addplot+[ycomb,blue,line width=0.1pt,domain=2.9:6.25,samples=37,opacity=0.5,mark=o] {ln(x)};  
+			\addplot+[ycomb,blue,line width=0.1pt,domain=6.25:15.625,samples=49,opacity=0.5,mark=o] {ln(x)};   
+			\addplot[black,mark=none,line width=0.5pt,domain=0.625:15.625,samples=400,color=ao]  {ln(x)} node[above left,yshift=-0.5cm,xshift=-2.5cm] {$\sum \kappa_j=161$}; 
+			\draw[very thick, densely dashed,draw=red] (axis cs: 0.625,0) -- (axis cs:0.625,4);
+			\draw[very thick, densely dashed,draw=red] (axis cs: 1.21,0) -- (axis cs:1.21,4);
+			\draw[very thick, densely dashed,draw=red] (axis cs: 2.9,0) -- (axis cs:2.9,4);
+			\draw[very thick, densely dashed,draw=red] (axis cs: 6.25,0) -- (axis cs:6.25,4);
+			\draw[very thick, densely dashed,draw=red] (axis cs:15.625,0) -- (axis cs:15.625,4);
+			\end{axis}
+			\node at (0.55,3.80) {$\Partition{0}$};
+			\node at (1,3.80) {$\Partition{1}$};
+			\node at (1.8,3.80) {$\Partition{2}$};
+			\node at (3.4,3.80) {$\Partition{3}$};
+			\node at (7.7,3.80) {$\Partition{4}$};
+			\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4pt},yshift=0pt] (0.65,0.1) -- (1.0,0.1) node [black,midway,xshift=-0.6cm,yshift=-0.75cm]{\begin{tabular}{c} $\Spacing{0}=0.01$ \\ $\NBreakpoints{0}=30$  \end{tabular}};
+			\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4pt},yshift=0pt] (1.0,0.1) -- (1.75,0.1) node [black,midway,xshift=0.1cm,yshift=-0.75cm]{\begin{tabular}{c} $\Spacing{1}=0.06$ \\ $\NBreakpoints{1}=45$  \end{tabular}};
+			\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4pt},yshift=0pt] (1.75,0.1) -- (3.3,0.1) node [black,midway,xshift=0.4cm,yshift=-0.75cm] {\begin{tabular}{c} $\Spacing{2}=0.09$ \\ $\NBreakpoints{2}=37$  \end{tabular}};
+			\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4pt},yshift=0pt] (3.3,0.1) -- (7.7,0.1) node [black,midway,xshift=0cm,yshift=-0.75cm] {\begin{tabular}{c} $\Spacing{3}=0.19$ \\ $\NBreakpoints{3}=49$  \end{tabular}};
+			\end{tikzpicture} }
+		\caption{\label{fig:hierarchical}Function approximation of $log(x)$ obtained using \textit{hierarchical segmentation}.}
+	\end{subfigure}
+	\hspace{0.5cm}
+	\begin{subfigure}[b]{0.45\textwidth}
+		\centering 
+		\resizebox{\textwidth}{!}{
+			\begin{tikzpicture}[scale=1]
+			\pgfplotsset{%compat=1.14,         
+				width=10cm,     
+				height=5cm, 
+			}
+			\begin{axis}[grid=both,
+			ymin=-0.5,
+			xmax=15.7,ymax=3,
+			axis lines=middle,
+			enlargelimits
+			]
+			
+			\addplot+[ycomb,blue,line width=0.1pt,domain=0.625:0.925,samples=16,opacity=0.5] {ln(x)};
+			\addplot+[ycomb,blue,line width=0.1pt,domain=0.925:1.525,samples=21,opacity=0.5,mark=o] {ln(x)};  
+			\addplot+[ycomb,blue,line width=0.1pt,domain=1.525:2.425,samples=19,opacity=0.5,mark=o] {ln(x)};  
+			\addplot+[ycomb,blue,line width=0.1pt,domain=2.425:3.625,samples=16,opacity=0.5,mark=o] {ln(x)}; 
+			\addplot+[ycomb,blue,line width=0.1pt,domain=3.625:6.025,samples=22,opacity=0.5,mark=o] {ln(x)}; 
+			\addplot+[ycomb,blue,line width=0.1pt,domain=6.025:15.625,samples=52,opacity=0.5,mark=o,solid]{ln(x)};   
+			\addplot[black,mark=none,line width=0.5pt,domain=0.625:15.625,samples=400,color=ao]  {ln(x)} node[above left,yshift=-0.5cm,xshift=-2.5cm] {$\sum \kappa_j=146$}; 
+			
+			\draw[very thick, densely dashed,draw=red] (axis cs: 0.625,0) -- (axis cs:0.625,4);
+			\draw[very thick, densely dashed,draw=red] (axis cs: 0.925,0) -- (axis cs:0.925,4);
+			\draw[very thick, densely dashed,draw=red] (axis cs: 1.525,0) -- (axis cs:1.525,4);
+			\draw[very thick, densely dashed,draw=red] (axis cs: 2.425,0) -- (axis cs:2.425,4);
+			\draw[very thick, densely dashed,draw=red] (axis cs: 3.625,0) -- (axis cs:3.625,4);
+			\draw[very thick, densely dashed,draw=red] (axis cs: 6.025,0) -- (axis cs:6.025,4);
+			\draw[very thick, densely dashed,draw=red] (axis cs:15.625,0) -- (axis cs:15.625,4);
+			\end{axis}
+			\node at (0.5,3.80) {$\Partition{0}$};
+			\node at (0.85,3.80) {$\Partition{1}$};
+			\node at (1.2,3.80) {$\Partition{2}$};
+			\node at (1.6,3.80) {$\Partition{3}$};
+			\node at (2.2,3.80) {$\Partition{4}$};
+			\node at (3.4,3.80) {$\Partition{5}$};
+			\node at (7.7,3.80) {$\Partition{6}$};
+			%\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4pt},yshift=0pt] (0.5,0.1) -- (1.5,0.1) node [black,midway,xshift=-0.4cm,yshift=-0.75cm]{\begin{tabular}{c} $\Spacing{0}=0.02$ \\ $\NBreakpoints{0}=94$  \end{tabular}};
+			\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4pt},yshift=0pt] (1.55,0.1) -- (2.1,0.1) node [black,midway,xshift=-0.2cm,yshift=-0.75cm]{\begin{tabular}{c} $\Spacing{3}=0.07$ \\ $\NBreakpoints{3}=16$  \end{tabular}};
+			
+			\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4pt},yshift=0pt] (2.1,0.1) -- (3.2,0.1) node [black,midway,xshift=0.3cm,yshift=-0.75cm] {\begin{tabular}{c} $\Spacing{4}=0.10$ \\ $\NBreakpoints{4}=22$  \end{tabular}};
+			\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4pt},yshift=0pt] (3.2,0.1) -- (7.7,0.1) node [black,midway,xshift=0cm,yshift=-0.75cm] {\begin{tabular}{c} $\Spacing{5}=0.20$ \\ $\NBreakpoints{5}=52$  \end{tabular}};
+			\end{tikzpicture} }
+		\caption{\label{fig:sequential}Function approximation of $log(x)$ obtained using \textit{sequential segmentation}.}
+	\end{subfigure}
+	\caption{\label{fig:proposedTwo} Algorithm \textit{hierarchical segmentation} identifies the partition $\SetPartitions=\{0.625,1.21,2.90,6.25,15.625\}$ for a given splitting threshold of $\ReductionThreshold =0.3$ describing four sub-intervals $[0.625,1.21)$, $[1.21,2.90)$, $[2.90,6.25)$ and $[6.25,15.625)$.
+		Here, a total of $\MemF = 161$ entries represents an overall reduction in memory footprint of $79\,\%$ compared to the $\Reference$ approach (see \cref{fig:entries}) for a user-given maximal approximation error bound of $\AbsError=1.22E-04$.
+		On the other hand, the \textit{sequential segmentation} obtained the partition $\SetPartitions=\{0.625,1.21,2.90,6.25,15.625\}$ with $\MemF=146$ resulting in a memory footprint reduction of $81\,\%$ compared to the $\Reference$ approach.
+	}
+\end{figure}
+\cref{alg:alg3} determines the first splitting point as $sp=0.9250$ while sweeping the interval $[0.625,15.625)$. 
+Thus, resulting in the new sub-intervals $sp_1=[0.625,0.925)$ and $sp_2=[0.925,15.625)$ with a memory footprint of $\NBreakpoints{sp_1}=16$ and $\NBreakpoints{sp_2}=510$, respectively. 
+The partition has a memory footprint of $\NBreakpoints{sp_1}+\NBreakpoints{sp_2}=(16+510) = 526$ which results in a reduction of $31.6\,\%$ compared to the $\Reference$ approach and is therefore accepted because the memory footprint reduction obtained is greater than the required threshold of $30\,\%$ ($\ReductionThreshold=0.3$). 
+The previous steps are repeated for all the sweep values $sp$ in the interval $[0.625,15.625)$.
+%However, it is less than the reductions produced binary segmentation ($46\,\%$) and hierarchical segmentation ($66.5\,\%$). 
+\cref{fig:sequential} shows that the completed sweep over the interval $[0.625,15.625)$ produces the partition $\SetPartitions=\{0.625,0.925,1.525,2.425,3.625,6.025,15.625\}$, resulting in a memory footprint $\MemF^P([0.625,15.625))=(16+21+19+16+22+52)=146$.
+\textit{Sequential segmentation} is able to reduce the memory footprint by $81\,\%$ with respect to the $\Reference$ approach.
+Compared to the \textit{binary} and \textit{hierarchical} segmentation approaches, the memory footprint reduction is higher by $18\,\%$ and $9\,\%$, respectively. 
+Finally, \textit{sequential segmentation} generates six sub-intervals which is larger than the number of sub-intervals produced by the other two heuristics.\\
+The following section presents an analysis of the proposed approaches to determine if an algorithm delivers significantly better memory footprint reductions than another one.
+\begin{figure}[ht!]
+	\centering
+	\begin{subfigure}[b]{\textwidth}
+		\centering
+		\resizebox{0.76\textwidth}{!}{
+			\begin{tikzpicture}
+			\MeanPlots
+			\end{tikzpicture}}
+		\caption{\label{fig:mean_red}
+			Memory footprint reduction analysis of the proposed binary, hierarchical and sequential approaches.}
+	\end{subfigure}
+	\begin{subfigure}[b]{\textwidth}
+		\centering
+                \vspace{0.5cm}
+		\resizebox{0.76\textwidth}{!}{
+			\begin{tikzpicture}
+			\NIntervalPlots
+			\end{tikzpicture}}
+		\caption{\label{fig:mean_numInt} Number of intervals obtained by the proposed binary, hierarchical and sequential approaches.}
+	\end{subfigure}
+	\caption{\label{fig:compapps}Memory footprint reduction analysis of the proposed binary, hierarchical and sequential interval-based segmentation approaches colored in red, gray, and blue, respectively.
+		The \textit{x-axis} presents 30 threshold values $\ReductionThreshold$ ranging from 0.01 to 0.3. 
+		Each point represents the mean memory footprint reduction $mean(\Delta \MemF)$ in (a) and the mean number of sub-intervals determined in (b) for 100 randomly generated sub-intervals in the interval range $\Interval$ for each given value $\ReductionThreshold$.}
+\end{figure}
+\subsection{Comparative Analysis of the Proposed Approaches}\label{comp_prop_pre_impl}
+As shown by the previous three examples (see \cref{fig:proposed,fig:proposedTwo}), the proposed partitioning heuristics can achieve significant overall memory footprint reductions by splitting the interval of approximation. 
+This section presents the comparison of the three presented approaches in terms of the memory footprint reductions compared to the $\Reference$ approach.
+We define the memory footprint reduction as:
+\begin{equation}
+\Delta\MemF [\%] = \dfrac{M_F^R-M_F^P}{M_F^R}\times 100
+\label{eq:memreduction}
+\end{equation}
+In \cref{eq:memreduction}, $M_F^R$ and $M_F^P$ correspond to the memory footprints obtained respectively by the $\Reference$ approach and any of the three proposed approaches.\par
+In \cref{fig:compapps}, we compare the effects of varying the reduction threshold $\ReductionThreshold$ on the memory footprint reduction $\Delta M_F$ and on the number of intervals generated by each of our proposed approaches.
+Here, nine functions including several elementary mathematical functions, but also multiple well-known activation functions for \acp{ANN}, are used as test cases (see also \cref{tab:testcase}).
+Next to each function, the interval $\Interval$ used for approximation is specified.
+\cref{fig:mean_red} shows the memory footprint evaluation of the binary, hierarchical, and sequential segmentation colored in red, gray, and blue for each of the nine considered test functions.
+The \textit{x-axis} corresponds to the reduction threshold $\ReductionThreshold$ varying from $\ReductionThreshold$=0.01 to $\ReductionThreshold$=0.3 ($1\,\%$ to $30\,\%$ of memory footprint reductions).
+The \textit{y-axis} represents the mean memory footprint reduction over a population $X$ of 100 randomly generated intervals contained in the interval $[\LowerBound, \UpperBound)$.
+All the nine test case functions are approximated while guarding a maximum absolute error $\AbsError=9.5367E-07$.
+\cref{fig:mean_numInt} presents the number of generated sub-intervals for each of the three proposed approaches for each evaluated value $\ReductionThreshold$ for the same test functions as shown in \cref{fig:mean_red}. \par
+%Each point in \cref{fig:mean_red} represents the mean memory footprint reduction $mean(\Delta M_F)$ obtained by the binary, hierarchical and sequential approaches using the population $X$, a given reduction threshold $\ReductionThreshold$, and maximum absolute error $\AbsError=9.5367E-07$.
+\cref{fig:mean_red} analyzes the impact of the reduction threshold $\ReductionThreshold$ on $mean(\Delta M_F)$ obtained by the proposed approaches.  
+As can be seen, all three approaches produce the highest memory footprint reductions and the highest number of generated intervals (see the left part of each plot in \cref{fig:mean_red} and \cref{fig:mean_numInt}) for the smallest values of $\ReductionThreshold$. 
+Accordingly, a fine-grained exploration of the partitions over the interval is performed.
+For higher values of the threshold parameter $\ReductionThreshold$, the number of generated intervals reduces but going hand in hand with a lower reduction in the memory footprint (see the right part of each plot in \cref{fig:mean_red} and \cref{fig:mean_numInt}).\par
+\cref{fig:compapps} lets us also identify the threshold regions of highest memory footprint reduction as well as the best interval splitting algorithm. 
+Independent of the test function and interval splitting approach used, the highest absolute memory footprint reductions are consistently obtained for the smallest values of the threshold $\omega$ (see green shaded area $0.01 \leq \omega \le 0.05$ in \cref{fig:mean_red}).
+Now, as the memory footprint reduction of the resulting function table is the primary optimization goal for minimizing the table size\footnote{{The minimization of the number of intervals as shown in \cref{fig:mean_numInt} is only a secondary goal as we will see when looking at the hardware implementation costs and evaluations in \cref{sec:hardware,sec:results}, particularly \cref{sec:results:LUTs}.}}, we can conclude that the hierarchical segmentation approach is the preferred choice for giving the highest memory footprint reductions at a lowest number of intervals for all nine test functions and that low $\ReductionThreshold$ values in the range $0.01 \leq \ReductionThreshold \leq 0.05$ will deliver the highest memory footprint reductions.
+%For higher $\ReductionThreshold$ values, the sequential segmentation approach (colored in blue) seems to perform better than the other two approaches.
+%For $\Fx=\Gaussian$ and $\Fx=tan(x)$, the sequential segmentation delivers the highest memory footprint reductions for thresholds $\ReductionThreshold$ close to 0.3 because of the shape of the second derivative (see \cref{eq:five}), which is irregular and steeper compared with the rest of the test functions.\par
+%\Revision{However, we must consider the tradeoff between the memory footprint reductions and the number of generated intervals to determine an approach that can offer memory footprint reductions while reducing the logic required to implement the interpolation and the interval selection, which is tightly related to the number of generated intervals.
+%For illustrative purposes, we highlighted in \cref{fig:mean_red,fig:mean_numInt} the region between $0.01$ and $0.05$, where all the proposed approaches reached the maximum footprint reductions in green.
+%In this region, only the hierarchical and the sequential approaches reached the maximum reductions in contrast to the binary, which did not get identical reductions for swish, GELU, and softplus functions.
+%However, the sequential approach generates significantly more intervals for the same region than the hierarchical approach. 
+%Thus, the sequential approach requires considerably more comparators to implement the interval selection in hardware than the hierarchical approach, which offers similar memory footprint reductions.
+%Consequently, we only consider the hierarchical approach for hardware synthesis in our results section because it requires a minimal utilization of logic resources in a target \ac{FPGA} device compared to the other presented approaches.
+%}
+%However, for reduction threshold $\ReductionThreshold$ close to 0 (between $0.01$ and $0.04$), the hierarchical approach (colored in gray) seems to perform better for almost all the reported test functions. 
+%Only for $f(x)=e^x$, the hierarchical and sequential deliver similar reductions. 
+%Overall, maximum mean memory footprint reductions using the hierarchical segmentation of $44.5\,\%$ for $f(x)=e^x$, $43.5\,\%$ for $f(x)=log(x)$, 
+%
+%
+%
+%
+%$69.8\,\%$ for $f(x)=tanh(x)$, $51.6\,\%$ for $\Fx=\Sigmoid$, and $65.8\,\%$ for $\Fx=\Gaussian$ were achieved.
+%Next, in order to verify the superiority of one algorithm over others, we perform an statistical analysis using a two-sample Student’s $t$-test.
+%This statistical test is used to compare the means of two independent groups of samples. 
+%The samples are assumed to be normally distributed with an unknown variance. 
+%The types of $t$-tests and the corresponding null ($H_0$) and alternative hypotheses ($H_a$) are given in \cref{tab:synth_res}.
+%A test decision accepts or rejects a hypothesis with a confidence level of $1-\alpha$ depending on the absolute value of the statistics, the significance level $\alpha$ (usually set to $0.05$), the sample size, and the population means ($\mu_1$ and $\mu_2$) of the two compared populations (henceforth groups $g_1$ and $g_2$). 
+%In our case, we compare pairwise the mean memory footprint reductions $\Delta\MemF$ produced by the three proposed methods.
+%The null hypothesis $H_0$ must be accepted in the right-tailed $t$-test and rejected in the left-tailed $t$-test to establish that the samples in group $g_2$ outperform those in group $g_1$. To perform the one-tailed two-sample $t$-test, we employed the Matlab~\cite{MATLAB:2019} function $ttest2(g_1,g_2)$ from the Statistics and Machine Learning Toolbox.
+%The output of $ttest2(g_1,g_2)$ is $1$ if the  null hypothesis $H_0$ is rejected and $0$ otherwise.
+%Accordingly, the method represented by $g_2$ yields more significant average memory footprint reductions than the method defined by $g_1$ if the values returned by the right and left tailed $t$-test are 0 and 1, respectively.
+%\begin{table}[t!]
+%	\caption{ Null ($H_0$) and alternate ($H_a$) hypotheses of two-tailed and one-tailed Student’s $t$ test} % title name of the table
+%	\centering % centering table
+%        {\small
+%	\begin{tabular}{|l |c |c| } % creating 10 columns
+%		%\specialrule{.1em}{0.05em}{0.05em}
+%                \hline
+%		\textbf{Tail-type}& \textbf{Null Hypothesis (\bm{$H_0$})}  & \textbf{Alternative Hypothesis (\bm{$H_a$})}\\
+%                \hline
+%                \hline
+%		%\specialrule{.1em}{0.05em}{0.05em}
+%		Two-tailed &$H_0:\mu_1 = \mu_2$ & $H_a:\mu_1 \neq \mu_2$\\
+%		\hline
+%		Right-tailed &$H_0:\mu_1 \leq \mu_2$ & $H_a:\mu_1 > \mu_2$\\
+%		\hline
+%		Left-tailed &$H_0:\mu_1 \geq \mu_2$ &$H_a:\mu_1 < \mu_2$\\
+%                \hline
+%		%\specialrule{.1em}{0.05em}{0.05em}
+%	\end{tabular}
+%        }
+%	\label{tab:synth_res}
+%\end{table}
+%\begin{table}[t!]
+%	\caption{Result of right-tailed and left-tailed two-sample $t$-test for pair-wise proposed algorithms (groups $g_1$, $g_2$ and $g_3$ correspond to binary, hierarchical and sequential, respectively.) } % title name of the table
+%	\centering % centering table
+%        {
+%        \small
+%	\begin{tabular}{|c | c | c | c | c|} % creating 10 columns
+%                \hline
+%		\bm{$f(x)$} & \bm{$[\LowerBound, \UpperBound)$} & \textbf{Pair-wise test} & \textbf{Right-tailed \textit{t}-test} & \textbf{Left-tailed \textit{t}-test}\\
+%                \hline
+%                \hline
+%		&                             & $(g_1,g_2)$ & 0 & 0 \\
+%		&                             & $(g_1,g_3)$ & 0 & 0 \\
+%		\multirow{-3}{*}{$log(x)$} & \multirow{-3}{*}{$[0.625,15.625)$} & $(g_2,g_3)$ & 0 & 0 \\
+%		\hline
+%		&                             & $(g_1,g_2)$ & 0 & 0 \\
+%		&                             & $(g_1,g_3)$ & 0 & 0 \\
+%		\multirow{-3}{*}{$e^x$} & \multirow{-3}{*}{$[0,5)$} & $(g_2,g_3)$ & 0 & 0 \\
+%		\hline
+%		&                              & $(g_1,g_2)$ & 0 & 0 \\
+%		&                              &\cellcolor{black!15}$(g_1,g_3)$ & \cellcolor{black!15}0 & \cellcolor{black!15}1 \\
+%		\multirow{-3}{*}{$tan(x)$} & \multirow{-3}{*}{$[-1.5,0)$} & $(g_2,g_3)$ & 0 & 0 \\
+%		\hline
+%		&                             & $(g_1,g_2)$ & 0 & 0 \\
+%		&                             & \cellcolor{black!15}$(g_1,g_3)$ & \cellcolor{black!15}0 & \cellcolor{black!15}1 \\
+%		\multirow{-3}{*}{$tanh(x)$} & \multirow{-3}{*}{$[-8,0)$} & \cellcolor{black!15}$(g_2,g_3)$ & \cellcolor{black!15}0 & \cellcolor{black!15}1 \\
+%		\hline
+%		&                             & $(g_1,g_2)$ & 0 & 0 \\
+%		&                                          &\cellcolor{black!15} $(g_1,g_3)$ & \cellcolor{black!15}0 &\cellcolor{black!15} 1 \\
+%		\multirow{-3}{*}{$\dfrac{1}{1+e^{-x}}$} & \multirow{-3}{*}{$[-10,0)$} &\cellcolor{black!15} $(g_2,g_3)$ & \cellcolor{black!15}0 &\cellcolor{black!15} 1 \\
+%		\hline
+%		&                           & $(g_1,g_2)$ & 0 & 0 \\
+%		&                               & \cellcolor{black!15}$(g_1,g_3)$ & \cellcolor{black!15}0 & \cellcolor{black!15}1 \\
+%		\multirow{-3}{*}{$e^{\dfrac{{-x}^2}{2}}$} & \multirow{-3}{*}{$[-6,0)$} & \cellcolor{black!15}$(g_2,g_3)$ & \cellcolor{black!15}0 & \cellcolor{black!15}1 \\
+%                \hline
+%	\end{tabular}
+%        }
+%	\label{tab:ttest}
+%\end{table}
+%For the $t$-test, the considered groups are the mean memory footprint reductions ($mean(\Delta\MemF)$) that we have previously produced and visualized in \cref{fig:mean_red}.
+%Groups $g_1$, $g_2$ and $g_3$ corresponds to binary, hierarchical and sequential approaches, respectively, each with a sample size of 30.
+%Each sample in a group represents the average memory footprint reduction achieved by one of the proposed methods for 100 different input intervals and a given threshold reduction $\ReductionThreshold$. 
+%To obtain all the samples in a group, $\ReductionThreshold$ is varied between 0.01 and 0.3, in steps of 0.01. 
+%The set of input intervals remains the same for evaluation of the samples in any group. 
+%The results of the one-tailed two-sample $t$-tests are presented in \cref{tab:ttest}.
+%We can observe that the $t$-test is not statistically conclusive for $\Fx=log(x)$ and $\Fx=e^x$. 
+%Here, the confidence level does not allow us to conclude one algorithm significantly outperforming the others in terms of achievable memory footprint reductions. 
+%We might say that the three approaches deliver similar reductions.
+%However, for $\Fx=tan(x)$, we can conclude that the sequential approach outperforms the binary segmentation, whereas the comparison between sequential and hierarchical $t$-test is non-conclusive.
+%For the other functions in \cref{tab:ttest}, we can conclude that the sequential segmentation outperforms the binary and hierarchical approaches with a confidence level of $95\,\%$ (see rows colored in gray and the values 0 and 1 for the right-tailed and left-tailed $t$-test, respectively).\\
+%Following the results of the $t$-test, we may conclude that the interval splitting heuristic based on sequential segmentation delivers the maximum mean memory footprint reductions.
+%However, the hierarchical segmentation \Revision{produces the highest mean footprint reductions} compared to the sequential segmentation when the reduction threshold value $\ReductionThreshold$ lies between $0.01$ and $0.04$. 
+%Moreover, the average number of sub-intervals is smaller in case of hierarchical segmentation than sequential segmentation as shown in \cref{fig:mean_numInt}.
+%However, for reduction threshold values $\ReductionThreshold$ greater than $0.04$, the sequential segmentation turns out to be the best approach for all investigated functions.

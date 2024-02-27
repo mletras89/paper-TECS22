@@ -1,0 +1,62 @@
+\section{Related Work}
+\label{sec:relwork}
+{
+As our proposed approach can be utilized for approximating basically any given elementary mathematical function $f(x)$ in a given interval and given a maximum absolute tolerable error $\AbsError$, we first compare our approach to state-of-the-art methods proposing hardware circuit implementations for the approximated evaluation of elementary functions~\cite{Adcock2017,Shuman:2011,Lee2009,Butler2011,Caro2011,Dong2014,cordic:1998,cordic:2017,approxLUT,MATLAB:reference}. 
+In general, approaches for computing elementary functions can be classified into three categories: 1) polynomial-based, 2) iterative approximation algorithms, and 3) table-based approaches. 
+These approaches are able to trade off accuracy, latency, area, and memory footprint.\par
+}
+{\textbf{Polynomial-based approaches}~\cite{Adcock2017,Shuman:2011,Lee2009,Butler2011,Caro2011,Dong2014} evaluate polynomial functions for function approximation including linear regression, polynomials of low degree or spline functions.
+Although resulting circuit implementations often require only a negligible memory footprint, the evaluations including multiplications and additions can be quite costly in terms of resources and evaluation times, particularly if low approximation error bounds are given.}
+{Thus, polynomial-based approaches become impractical in environments where low circuit area, low latency and low energy margins are crucial.}\par
+{\textbf{Iterative approximation algorithms}}, as the name suggests, calculate a function based on iterative evaluations. 
+Despite being resource-efficient, these algorithms typically suffer from slow convergence, thus requiring many iterations to achieve a specific approximation error. 
+One prominent representative of this evaluator type is CORDIC algorithms~\cite{cordic:1998,cordic:2017}, which approximate trigonometric and hyperbolic functions. 
+{However, the high latency of iterative approaches might imply an energy overhead not desired or tolerable in mobile or edge devices~\cite{Kong:2022,Ota:2017}.}\par
+{\textbf{Table-based approaches}}~\cite{approxLUT,MATLAB:reference} split a given function interval into discrete points called breakpoints and store the function values evaluated at these breakpoints in a lookup table.
+Although offering constant-time lookup, the main drawback is often the {memory footprint in terms of the size} of the resulting tables, that grows exponentially with the bit-width of the input.
+Hence, table-based methods are often combined with polynomial-based approximation {between stored breakpoints to} reduce the memory footprint. 
+{In the area of polynomial-based approximation, particularly} piecewise-polynomial approximations~\cite{Lee2009,Butler2011,Caro2011,Dong2014} {were proposed}.
+{The approaches in}~\cite{Butler2011} and~\cite{Dong2014} segment a given interval to be approximated using piece-wise linear interpolations of the form {$ax + b$.} 
+Both approaches produce gradient-based non-uniform segments such that the approximation error in each segment does not exceed a specified maximal error. 
+{But a typically large} number of segments determines the number of comparisons performed to place a given input {into} the correct {segment and subsequently perform a piece-wise linear interpolation}. 
+Both of these numbers increase with the input interval length and the steepness of the function.\\
+{Contrary to all of these approaches, our proposed interval splitting algorithms} (1) segment a given domain of a function (interval) into typically a small set of sub-intervals by using {\em gradient information}. 
+{Thereby, the number of sub-intervals created can be controlled by a threshold parameter $\ReductionThreshold$.}
+{(2) Inside each sub-interval, no interpolation is applied, but rather an even sampling. 
+(3) By construction, a maximal approximation error bound $\AbsError$ is guarded over the whole function domain.
+(4) To reduce the number of breakpoints to be stored within each interval, we finally exploit a piece-wise linear interpolation similar to~\cite{Butler2011,Dong2014}. 
+But even in this single step common to~\cite{Butler2011,Dong2014}}, we do not {have to explicitly} store any slope $a$ and offset $b$, but only the values $y_{i}$ and $y_{i+1}$ of the nearest {breakpoints $x_i$ and $x_{i+1}$ which are obtained by a simple memory lookup and constant time  of just 5 clock cycles per function evaluation.}\par
+{Finally, our approach might be a great candidate also for the low-cost and at the same time low-latency evaluation of activation functions in \acp{ANN} and \acp{DNN} on edge devices. 
+In the following,  we therefore compare our approach to methods that propose custom hardware implementations of activation functions to be utilized to either accelerate the training and inference phases of a neural network or to implement low-power approximate activation function evaluators~\cite{Dong:2021,Chang:2019,Yu:2022,Tao:2019}.}\par
+{\textbf{Approximation of activation functions for \acp{ANN}} on edge and low-power devices has become of interest due to the complexity of state-of-the-art \acp{DNN}. 
+As the number of input parameters of state-of-the-art \acp{DNN} grows~\cite{Transformers:2022,GPT3}, the number of operations, such as matrix multiplications and activation function evaluations in the training and inference phases, drastically increases, too. 
+Consequently, the search for alternative hardware architectures for providing low resource cost and low energy consuming circuit implementations for \acp{DNN} has become crucial. 
+In this context, \ac{FPGA} devices to implement custom designs of activation functions have been explored as a low-power alternative~\cite{Dong:2021,Chang:2019,Yu:2022,Tao:2019}. 
+Also, approximate computing techniques have been utilized to further optimize the energy consumption of those hardware implementations.
+E.g.,~\cite{Chang:2019} presents a custom combinatorial hardware implementation that calculates hyperbolic tangent, ReLU, and sigmoid functions in the same circuit.
+For instance, the approach divides the hyperbolic tangent domain into three intervals. 
+From $(0,1]$, the function is approximated as a linear function, and from $[2,8)$, the approximated output is 1. 
+A table is utilized to evaluate hyperbolic tangent in the range of $(1,2)$. 
+The circuit has 3 bits as input and 5 bits as output, resulting in an equidistant sampled table of 8 entries, each 5 bit in length. 
+Unfortunately, the approach is fully specific to the function and is also not able to satisfy a given maximum absolute error bound $\AbsError$ as our approach.
+For the same hyperbolic function,~\cite{Tao:2019} suggests to reduce the function approximation problem to an $m$-output Boolean circuit synthesis problem. 
+For $n=4$ considered input bits and $m=7$ output bits, the function approximator circuit then consists of 7 digital circuits and avoids any function tables. 
+However, such an approach becomes infeasible for functions requiring low approximation error margins and easily explodes in hardware cost for real-world input and output word lengths (e.g., $n=m=32$ as considered in all our test functions in \cref{tab:testcase} and circuits generated).
+Only the two approaches presented in \cite{Yu:2022} and~\cite{Raha} resemble our interval splitting approach to some extent:
+\cite{Yu:2022} proposes a table-based approach for approximating \ac{DNN} activation functions. 
+An offline-trained neural network determines a set of typically not equidistant breakpoints to be stored.
+As neural networks can also be seen as function approximators, the proposed approach consists first in training a one-layer fully connected neural network to predict a given function.
+The neurons and weights of the trained neural network determine an approximation of the target function by a set of linear functions which are then stored in a LUT-based table to evaluate the function $f(x)$.
+However, the approach is first not only very computationally intensive due to a required neural network training, but second also not able to guarantee a given maximum approximation error bound $\AbsError$ by construction.
+Third, our interval splitting approach does not determine breakpoints but rather intervals in which equidistant sampling is performed to determine the breakpoints. 
+The approach~\cite{Yu:2022} might not scale for low error margins as considered in this paper.\par
+Last, we can find approaches that propose a partitioning of the domain of a function into sub-intervals as our proposed approach.
+As an example,~\cite{Raha} performs an approximation of additions and multiplications on accelerators for K-means and \ac{SVM}. 
+A two dimensional table is proposed to store the output of a multiplication given two input operands. 
+Different quantization levels in the breakpoints stored can be exploited to reduce the table size using an input-aware approximation consisting of learning the partitioning of the domain. 
+Here, a training dataset is utilized to generate a partitioning while considering the statistics of the inputs by calculating the probability distribution of the input dataset elements. 
+Instead of uniformly partitioning, the partition is determined by the probability of the elements in the training dataset.
+Contrary to our approach which does not require any input dataset to determine an interval partition, the approach in~\cite{Raha} is also not able to guarantee any maximal approximation error over the domain of the function.\par}
+In this paper, we have shown that the proposed idea of interval splitting can help to reduce the memory footprint of table-based function approximation drastically without sacrificing {a given approximation error bound}.
+{In contrast to custom circuits for evaluating activation functions, our approach guarantees not to exceed a user-given maximum absolute approximation error bound $\AbsError$ over the specified domain of a function and is fully automatic in synthesizing a low cost and low latency table-based circuit implementation.
+It has been shown that our approach is flexible for the evaluation of a large scope of elementary but also several \ac{DNN}  activation functions in just nine clock cycles per evaluation.}

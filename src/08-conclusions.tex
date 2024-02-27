@@ -1,0 +1,14 @@
+\section{Conclusion}
+\label{sec:conclusion}
+In this article, we investigated an efficient way to approximate elementary functions in a given domain (interval) and given a maximum absolute error using interval splitting.
+First, we realized {that a huge reduction in memory footprint can be obtained over storing a function table with uniform sampling by} splitting the given {domain} into a set of sub-intervals and assuming a coarser sampling grid for low gradient regions, while {always respecting a} given maximum approximation error $\AbsError$.
+Second, we proposed a generic hardware architecture that synthesize such interval-splitted tabular function approximators with {a constant and function-independent} evaluation latency of just $L=9$ clock cycles per function evaluation.
+{Moreover,} we exploited explicitly the use of \acp{BRAM} by automatically inferring them in our design flow during the code generation of the hardware description.
+In consequence, {huge} reductions in the memory footprint were shown to be achievable by our proposed approach. 
+{Thus, the usage of BRAMs allows to save huge amounts of LUTs that can be used better to implement other logic functions.}
+%As future work, we want to explore more efficient packing of BRAMs and alternative sub-interval determination algorithms.
+%approaches can be explored instead of the binary partition employed by our approach.
+{The presented results inspire to investigate the exploration also of energy and power tradeoffs in dependence of the accuracy as part of future work.
+For instance, in some realms, e.g., mobile computing and edge computing, a lower power consumption might be required at the expense of less accuracy~\cite{Ota:2017,Pouyanfar:2018,Kong:2022}. 
+With our presented approach, it should be possible to explore these tradeoffs in future work as the maximum tolerable error as well as the input and output word sizes are parameters that can be tuned.}
+%Our approach should be able to explore these tradeoffs because the maximum tolerable error, the input and output word sizes are parameters that can be tuned because the as well the maximum tolerable error as the input word sizes and the output word sizes are parameters that can be tuned.}

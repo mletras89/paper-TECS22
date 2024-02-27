@@ -1,0 +1,168 @@
+\section{Experimental Results}
+\label{sec:results}
+To evaluate the memory savings of the interval splitting approaches introduced in \cref{sec:proposed} {also in real hardware}, we compare the {equidistant} spacing table-based function approximation approach ($\Reference$) {as introduced in \cref{sec:reference} against} our newly introduced interval segmentation approximation approach.
+For the {comparison}, we consider the hierarchical approach {as this has shown in \cref{sec:proposed} to provide highest mean memory footprint reductions while producing no more intervals than the other two introduced approaches}.
+The goal of {both} the $\Reference$ approach and {\textit{Hierarchical segmentation}} is to generate an efficient memory footprint function approximation of $\Fx$ for a given interval $[\LowerBound,\UpperBound)$ {while never exceeding an} absolute error {bound} $\AbsError$.\\ 
+Apart from comparing the memory footprint reductions {$\Delta\MemF$} obtained by each approach, we {synthesized} hardware implementations of both approaches and compared them regarding {also} the number of utilized BRAMs, the number of utilized LUTs, and the achievable {clock} frequency in MHz.
+Here, we used the Matlab/Simulink LUT Optimizer~\cite{MATLAB:reference} to obtain the VHDL implementation{s} of the $\Reference$ approach. {For the purpose of comparison, we} {only customized} the code delivered by Matlab's HDL coder to force the instantiation of the tabular function representation in BRAMs instead of using LUTs.\\
+Regarding the {\textit{Hierarchical segmentation}} approach, we {applied} our newly introduced design flow (see \cref{sec:hardware}) that automatically performs VHDL code generation and BRAM instantiation of the table-based function approximation.
+The {benchmarks} considered for comparison consists {again of the} {nine} test functions {as} presented in \cref{tab:testcase}, {including standard mathematical functions as well as multiple non-linear activation functions of \acp{DNN}}.\par
+%We selected these functions because they present different gradient regions to examine the benefits of our proposed segmentation approach.\\
+In the following, we will show that our proposed hierarchical segmentation-based approach is able to achieve {fundamentally higher} memory footprint reductions and at the same time a lower number of BRAMs {over the $\Reference$ approach}.
+\subsection{Test Setup}
+{Our} benchmark {is} composed of {nine} test functions {as} presented in \cref{tab:testcase}.
+Each function is evaluated by the $\Reference$ and {the \textit{Hierarchical segmentation} approach} with {a chosen} absolute approximation error $\AbsError=9.5367E-07$ over the interval $[\LowerBound,\UpperBound)$ presented in the second column in \cref{tab:testcase}.
+The third and fourth columns in \cref{tab:testcase} show the input {$(S^{\Xi},W^{\Xi},F^{\Xi})$} and output {$(S^\Upsilon,W^\Upsilon,F^\Upsilon)$} fixed-point format used to approximate the proposed test functions.
+Here, $S$ corresponds to the bit used to represent the sign, being 1 for a negative number and 0 for a positive.
+{$W$} is the bit-width, and {$F$} is the number of bits used for the fractional part.\\
+As a target \ac{FPGA}, we selected {a} Zynq-7000 \ac{PSoC} with $53,200$ \acp{LUT}, $106,400$ Flip-Flops, and up to 4.9 MB of \acp{BRAM}.
+We performed the synthesis of the circuits for the $\Reference$ and {\textit{Hierarchical segmentation}} approaches using Vivado 2021.2.
+We synthesized {nine} {different circuits} per approximated function for the hierarchical approach by varying the number of generated intervals $1\leq n < 30$, where {$n=|\SetPartitions|-1$} stands for the number of generated intervals. 
+For the trivial case of $n=1$ (no splitting is performed), the results are equal to those delivered by the $\Reference$ {approach}.
+\begin{table}[t!]
+\centering
+\caption{Evaluation benchmark composed of {nine} functions and their characteristics. 
+{Column five indicates $n$, the number of intervals the domain of the function is split.}
+Columns {six to eight} present the memory footprint reduction {$\Delta\MemF$}, the BRAM reduction {$\Delta BRAM$} and the increment of LUTs {$\Delta LUTs$} compared to the $\Reference$ {approach in $\%$}.}
+\resizebox{0.85\textwidth}{!}{
+  {{
+  \small
+  \begin{tabular}{| c| c| c| c| c| c| c | c |}
+   \hline
+      \bm{$f(x)$} & \bm{$[\LowerBound,\UpperBound)$} & \bm{$(S^{\Xi},W^{\Xi},F^{\Xi})$} & \bm{$(S^\Upsilon,W^\Upsilon,F^\Upsilon)$} & \bm{$n$} & \bm{$\Delta\MemF$} \bm{$[\%]$} &\bm{$\Delta BRAM$} \bm{$[\%]$} & \bm{$\Delta LUTs$} \bm{$[\%]$} \\\hline\hline
+                                & & & & \ 3 &  75\,\% & 66\,\%    & 10\,\%  \\
+                                & & & &  5  &  80\,\% & 83\,\%    & 21\,\%  \\
+                                & & & & 13  &  89\,\% & 83\,\%    & 42\,\%  \\
+                                & & & & 17  &  90\,\% & 91\,\%    & 52\,\%  \\
+     \multirow{-5}{*}{$tan(x)$} &\multirow{-5}{*}{$[-1.5,1.5)$}&\multirow{-5}{*}{$(1,32,30)$}&\multirow{-5}{*}{$(1,32,27)$}& 29  &  91\,\% & 91\,\%    & 81\,\% \\\hline
+                                & & & & 2   &  66\,\% & 75\,\%    & 32\,\%  \\
+				& & & & 4   &  79\,\% & 87.5\,\%  & 39\,\%  \\
+			  	& & & & 8   &  83\,\% & 87.5\,\%  & 40\,\%  \\
+				& & & & 16  &  84\,\% & 87.5\,\%  & 57\,\%  \\
+     \multirow{-5}{*}{$log(x)$} &\multirow{-5}{*}{$[0.625,15.625)$}&\multirow{-5}{*}{$(0,32,28)$}&\multirow{-5}{*}{$(1,32,29)$}& 29  &  85\,\% & 87.5\,\%  & 68\,\% \\\hline
+                                & & & & 2   &  38\,\%	& 50\,\%    & 49\,\%   \\
+				& & & & 4   &  51\,\%	& 50\,\%    & 61\,\%   \\
+			  	& & & & 8   &  56\,\%	& 50\,\%    & 63\,\%   \\
+				& & & & 16  &  60\,\%	& 50\,\%    & 85\,\%   \\
+     \multirow{-5}{*}{$e^x$}    &\multirow{-5}{*}{$[0,5)$}&\multirow{-5}{*}{$(0,32,29)$}&\multirow{-5}{*}{$(0,32,24)$}& 29  &  61\,\%	& 50\,\%    & 109\,\%  \\ \hline
+                                & & & & 5   &  57\,\% & 50\,\%    & 66\,\%    \\
+				& & & & 9   &  59\,\% & 50\,\%    & 73\,\%    \\
+			  	& & & & 13   &  68\,\% & 75\,\%    & 85\,\%   \\
+				& & & & 17  &  68\,\% & 75\,\%    & 102\,\%   \\
+     \multirow{-5}{*}{$tanh(x)$}&\multirow{-5}{*}{$[-8,8)$}&\multirow{-5}{*}{$(1,32,27)$}&\multirow{-5}{*}{$(1,32,31)$}& 29  &  70\,\%	& 75\,\%    & 136\,\%  \\ \hline
+                                & & & & 7   &  40\,\%	& 50\,\%    & 66\,\%   \\
+				& & & & 9   &  55\,\%	& 75\,\%    & 69\,\%   \\
+			  	& & & & 13   &  56\,\%	& 75\,\%    & 84\,\%   \\
+				& & & & 17  &  59\,\%	& 75\,\%    & 97\,\%   \\
+     \multirow{-5}{*}{\begin{tabular}{c} $e^{(-x^2/2)}$ \\  $[$gaussian$]$ \end{tabular} }   &\multirow{-5}{*}{$[-6,6)$}&\multirow{-5}{*}{$(1,32,28)$}&\multirow{-5}{*}{$(1,32,32)$}& 29  & 60\,\% & 75\,\%   & 131\,\% \\ \hline
+                                & & &  & 5   & 42\,\%	& 50\,\% & 49\,\% \\
+				& & &  & 9   & 43\,\%	& 50\,\% & 54\,\% \\
+			  	& & &  & 13   & 51\,\%	& 50\,\% & 65\,\% \\
+				& & &  & 17  & 52\,\%	& 50\,\% & 81\,\% \\
+     \multirow{-5}{*}{\begin{tabular}{c} $\dfrac{1}{1+e^{-x}}$ \\ $[$sigmoid$]$ \end{tabular}}&\multirow{-5}{*}{$[-10,10)$}&\multirow{-5}{*}{$(1,32,27)$}&\multirow{-5}{*}{$(0,32,32)$}& 29  & 55\,\% & 75\,\% & 111\,\% \\\hline
+                                & & &  & 3   & 42\,\%	& 50\,\% & 35\,\% \\
+				& & &  & 11   & 49\,\%	& 50\,\% & 51\,\% \\
+			  	& & &  & 13   & 50\,\%	& 50\,\% & 61\,\% \\
+				& & &  & 18  & 51\,\%	& 50\,\% & 74\,\% \\
+     \multirow{-5}{*}{\begin{tabular}{c} $\Swish$ \\ $[$swish$]$ \end{tabular}}&\multirow{-5}{*}{$[-5,5)$}&\multirow{-5}{*}{$(1,32,27)$}&\multirow{-5}{*}{$(0,32,32)$}& 19  & 52\,\% & 50\,\% & 95\,\% \\\hline
+                                & & &  & 3   & 58\,\%	& 57\,\% & 58\,\% \\
+				& & &  & 11   & 63\,\%	& 57\,\% & 65\,\% \\
+			  	& & &  & 13   & 64\,\%	& 57\,\% & 74\,\% \\
+				& & &  & 21  & 65\,\%	& 57\,\% & 81\,\% \\
+     \multirow{-5}{*}{\begin{tabular}{c} $\GELU$ \\ $[$GELU$]$ \end{tabular}}&\multirow{-5}{*}{$[-5,5)$}&\multirow{-5}{*}{$(1,32,27)$}&\multirow{-5}{*}{$(0,32,32)$}& 23  & 65\,\% & 57\,\% & 101\,\% \\\hline
+                                & & &  & 5   & 28\,\%	& 25\,\% & 40\,\% \\
+				& & &  & 9   & 29\,\%	& 25\,\% & 47\,\% \\
+			  	& & &  & 13   &37\,\%	& 25\,\% & 53\,\% \\
+				& & &  & 17  & 38\,\%	& 25\,\% & 69\,\% \\
+     \multirow{-5}{*}{\begin{tabular}{c} $\Softplus$ \\ $[$softplus$]$ \end{tabular}}&\multirow{-5}{*}{$[-5,5)$}&\multirow{-5}{*}{$(1,32,27)$}&\multirow{-5}{*}{$(0,32,32)$}& 29  & 39\,\% & 25\,\% & 90\,\% \\\hline 
+	\end{tabular} } 
+        }
+        }
+\label{tab:testcase}
+\end{table}
+\subsection{Analysis of Synthesis Results}
+\cref{fig:resSynthesis} presents the synthesis results obtained by the $\Reference$ and {our approach} {\textit{Hierarchical segmentation}} regarding memory footprint ($\MemF$), number of instantiated BRAMS, number of utilized LUTs, and {achievable clock} frequency in MHz.\\
+As can be seen, our proposed hierarchical approach is able to drastically reduce the memory footprint resulting in very efficient utilization of BRAMs (see \cref{res:MFBRAM}). 
+Regarding logic utilization of the target FPGA, our hierarchical approach utilizes {insignificantly more LUTs} than the reference approach. {This increase is} due to the number of generated intervals impacting the size and depth of the binary tree of comparators of the interval selector (see \cref{sec:proposed}).
+However, this {typically} represents {only} a $3\,\%$ overall utilization of the LUTs available in the target FPGA.
+Finally, our proposed approach {delivers circuits ranging} between 86.5 MHz and 88.5 MHz in terms of {achievable clock} frequency (see \cref{res:LUTs}).
+{\begin{figure}[!htb]
+\centering
+    \begin{subfigure}[b]{\textwidth}
+	\centering
+	\resizebox{0.76\textwidth}{!}{
+		\begin{tikzpicture}
+		\ResourcesMemoryFootprint
+		\end{tikzpicture}}
+		\caption{\label{res:MFBRAM} Memory footprint and BRAM utilization}
+    \end{subfigure}
+    \begin{subfigure}[b]{\textwidth}
+	\centering
+        \vspace{0.25cm}
+	\resizebox{0.75\textwidth}{!}{
+		\begin{tikzpicture}
+		\ResourcesLUTFrequency
+		\end{tikzpicture}}
+		\caption{\label{res:LUTs} LUT Utilization and {Clock} Frequency}
+    \end{subfigure}
+    \caption{\label{fig:resSynthesis} 
+    Synthesis results obtained {using our} \textit{hierarchical segmentation} approach for the approximation of {the six} benchmark functions in \cref{tab:testcase} against the number of generated sub-intervals ($1\leq n<30$).
+    In (a), we can observe that as the number of sub-intervals {$n$} increases, {so do the} reductions in the memory footprint and the number of utilized BRAMs.
+    In (b), the number of utilized LUTs and {clock} frequency are presented.
+    Here, the number {$n$} of intervals affects the number of utilized LUTs which are used to implement the interval selector {in \cref{fig:architecture}.}
+    Finally, we can observe that the {achieved clock} frequency is almost constant {at} $\sim 87$ MHz. 
+    }
+\end{figure}}
+\subsubsection{Memory Footprint and BRAMs Utilization}
+\cref{res:MFBRAM} presents the memory footprint, and the number of utilized BRAMs colored in blue and green, respectively, for the $\Reference$ (n=1) and the {\textit{Hierarchical segmentation}} approaches.
+Here, we generated six implementations using the hierarchical approach {for a} varying number of generated intervals $n$ for each explored function.
+For example, when approximating the function $\Fx=tan(x)$, we generated six implementations with $n\in\{1,3,5,13,17,29\}$ {intervals each}.
+The calculation of the memory footprint obtained by the $\Reference$ approach ($n=1$) is according to \cref{eq:six} {and \cref{eq:memFProposed} for \textit{Hierarchical segmentation}.}\\
+At first, we can observe a considerable decrease in the memory footprint and the number of used BRAMs when we apply the hierarchical segmentation approach ($n>1$) for all {six considered test} functions.
+The sixth and the seventh columns in \cref{tab:testcase} present the memory footprint ({$\Delta\MemF$}) and the {reduction in utilized} BRAMs ({$\Delta BRAM$}) obtained by our approach \textit{Hierarchical segmentation} compared to $\Reference$ for each obtained partition.
+The memory footprint reduction {$\Delta\MemF$} was calculated according to \cref{eq:memreduction}.\\
+In general, we can observe that as the {number $n$} of sub-intervals increases, the memory footprint decreases as well as the number of utilized BRAMs.
+E.g., for $f(x)=tan(x)$, the $\Reference$ results in a table with a $\MemF^R=81,543$ entries stored in 95 {allocated} BRAMs.
+%The memory footprint resulted in $\MemF^P=$ and  for the smallest partitioning obtained by our proposed hierarchical approach for the same tan(x).
+On the other hand, the table obtained by our approach for {a partition with} $n=3$ {intervals} resulted in a memory footprint reduction ${\Delta\MemF}=75\,\%$ and BRAM reduction ${\Delta BRAM}=66\,\%$.
+For $n=5$, the corresponding memory footprint and BRAMs reduction resulted in ${\Delta\MemF}=80\,\%$ and ${\Delta BRAM}=83\,\%$, respectively.
+However, for $n=13${,} the memory footprint reduced by ${\Delta\MemF}=89\,\%$ but the ${\Delta BRAM}=83\,\%$ remained the same as {for} $n=5$.
+Intuitively, we would expect a reduction in the BRAM usage as the memory footprint reduces.
+Nevertheless, this might not always be the case because of the storage capacity of each BRAM and how the data is internally stored {as illustrated next}.\\
+{According to the Xilinx 7-series specification, it is important to note that each BRAM can store up to 1,024 entries for an output bit-width of $W=32$ bits. The number of address bits of one BRAM is thus 10. Similarly, for any memory footprint $\MemF$, the number of required address bits is $\lceil log_2(\MemF)\rceil$. 
+%However, this bus always reserves a memory block of depth $2^{\lceil log_2(\MemF)\rceil}$. 
+Hence, the number of BRAMs of depth 1,024 ($2^{10}$) required to store $\MemF$ values is given by $\frac{2^{\lceil log_2 \MemF \rceil}}{1024}=2^{\lceil log_2 \MemF \rceil-10}$.
+For example, let's consider two circuits synthesized to approximate $\Fx=tan(x)$ for $n=5$ and $n=13$ intervals. 
+The reported memory footprints are $\MemF=15,644$ and $\MemF=8,798$, respectively. 
+The number of address bits for both the cases is 14 and therefore, the number of allocated BRAMs is $2^{14-10}=16$ for both implementations despite the large difference in memory footprints.} \\
+%According to the Xilinx 7-series specification, it is important to note that each BRAM has a depth of 1,024 ($2^{10}$) for an input bit-width of 32 bits.
+%Thus, each address is represented as a bit string of 10 bits length.
+%To store more than 1,024 entries, we require a bus address size larger than 10.
+%Let $w$ denote the address length. 
+%If $w>10$, then $2^m$ BRAMs will be instantiated such that $2^w = 2^m\times2^{10}$ where $m=w-10$.\\
+%Consider $n=5$ for $\Fx=tan(x)$, the reported memory footprint is $\MemF^P=15,644$ which is bigger than 1,024.
+%Thus the width of the address bus is $w=\lceil log_2(15,644)\rceil=14$ and $m=14-10=4$.
+%Then, the number of utilized BRAMs is $2^{4}=16$. 
+%Let consider now $n=13$ for the same $\Fx=tan(x)$, the reported memory footprint is $\MemF^P=8,798$ and $w=\lceil log_2(8,798)\rceil=14$.
+%This results in $16$ utilized BRAMs which is the same for $n=5$.
+%Accordingly, the number of utilized BRAMs is not only affected by the memory footprint but also by the capacity of storage of each BRAM.}\\
+{Also for} the {other} test functions, we obtained significant memory footprint reductions and efficient BRAM utilization{s}.
+For {example, for} $f(x)=log(x)$, we reported memory footprint reductions ranging from $66\,\%$ to $85\,\%$ and BRAMs reduction ranging from $75\,\%$ to $87.5\,\%$.
+In case of $\Fx=e^x$, the memory footprint reductions ${\Delta\MemF}$ ranged from $38\,\%$ to $61\,\%$ with a BRAMs reduction ${\Delta BRAM}$ of $50\,\%$.
+For $\Fx=tan(x)$, the ${\Delta\MemF}$ ranged from $57\,\%$ to $70\,\%$ with a BRAMs reduction ${\Delta BRAM}$ up to $75\,\%$.
+For $\Fx=e^{-\frac{x^2}{2}}$, the ${\Delta\MemF}$ ranged from $40\,\%$ to $60\,\%$ with a BRAMs reduction ${\Delta BRAM}$ up to $75\,\%$.
+Finally, for $\Fx=\frac{1}{1+e^{-x}}$, the ${\Delta\MemF}$ ranged from $42\,\%$ to $55\,\%$ with a BRAMs reduction ${\Delta BRAM}$ {of up} to $75\,\%$.
+\subsubsection{LUT Utilization}\label{sec:results:LUTs}
+In \cref{res:LUTs}, the light orange bars present the number of LUTs utilized for the six implementations obtained by the proposed {\textit{Hierarchical segmentation}} approach ranging the number of generated intervals from $n=1$ to $30$.
+Here, the $\Reference$ corresponds to the case with no partition ($n=1$).
+We can observe that the number of utilized LUTs increases with the number of generated intervals $n$ for all the presented benchmark functions.
+The increment in LUTs can be attributed to an increase in the number of comparisons required to traverse the binary tree in the interval selection block (see \cref{fig:architecture}), which are tightly related to the number of generated intervals $n$ obtained by our proposed hierarchical approach.
+%Compared to the $\Reference$ {approach}, our {algorithm} reported an increment in the number LUTs up to ${\Delta LUTs}=81\,\%$ for $f(x)=tan(x)$, up to ${\Delta LUTs}=68\,\%$ for $f(x)=log(x)$, up to ${\Delta LUTs}=109\,\%$ for $f(x)=e^x$, up to ${\Delta LUTs}=136\,\%$ for $f(x)=tanh(x)$, up to ${\Delta LUTs}=131\,\%$ for $f(x)=e^{-\frac{x^2}{2}}$ and up to ${\Delta LUTs}=111\,\%$ for $f(x)=\frac{1}{1+e^x}$.
+However, {for all values $n$ of intervals, the {absolute} overall overhead is typically less than} $3\,\%$ of the available LUTs in the target FPGA.
+\subsubsection{{Clock} Frequency}
+In \cref{res:LUTs}, the red bars show the {clock} frequency {achieved} by six implementations of the proposed \textit{hierarchical segmentation} approach by varying the number of generated intervals $n$ between 1 to 30. {The architecture is fully pipelined with a data introduction interval of only one clock cycle to start subsequent function evaluations.}
+We can generally observe that the {clock} frequency lies between 86.5 MHz to 88.5 MHz for the six analyzed functions. 
+For all test functions, the critical path lies in the linear interpolation unit. 
+A multiplication is carried out by two cascaded DSPs (Digital Signal Processor) which introduce an almost constant delay for all implementations. Slight differences (typically less than 2 MHz) are caused just by minor variations in the net and routing delays from design to design.
+Our proposed hierarchical approach reaches an overall average {clock} frequency of 87.5 MHz. 
+Accordingly, the hardware implementation is able to produce an approximated function evaluation {within} $\frac{9\ clock\ cycles}{87.5\ MHz}\approx102.8\ ns$.

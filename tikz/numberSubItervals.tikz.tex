@@ -1,0 +1,46 @@
+\newcommand{\NIntervalsPlot}{
+\pgfplotsset{every tick label/.append style={font=\Large}}
+    \begin{groupplot}[group style={group size= 3 by 2},height=7.5cm,width=10cm,xlabel={\Huge$\omega$},
+		     legend style = {at={(-1.2,-0.3)},anchor=west},
+                      legend columns = 3,]
+        
+        \nextgroupplot[title={\huge $f(x)=e^x$},ylabel={\huge $mean(MF)$}]
+            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/exp/mean_NumSubInt_exp.csv};
+            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/exp/mean_NumSubInt_exp.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/exp/mean_NumSubInt_exp.csv};
+
+       \nextgroupplot[title={\huge $f(x)=log(x)$}]
+            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/log/mean_NumSubInt_log.csv};
+            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/log/mean_NumSubInt_log.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/log/mean_NumSubInt_log.csv};
+%
+       \nextgroupplot[title={\huge $f(x)=tan(x)$}]
+            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/tan/mean_NumSubInt_tan.csv};
+            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/tan/mean_NumSubInt_tan.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/tan/mean_NumSubInt_tan.csv};
+% 
+       \nextgroupplot[title={\huge $f(x)=tanh(x)$},yshift=-2cm ,ylabel={\huge $mean(MF)$}]
+            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/tanh/mean_NumSubInt_tanh.csv};
+            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/tanh/mean_NumSubInt_tanh.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/tanh/mean_NumSubInt_tanh.csv};
+%% sigmoid
+        \nextgroupplot[title={\huge $f(x)=\dfrac{1}{1+e^{-x}}$},yshift=-2cm]
+            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/sigmoid/mean_NumSubInt_sigm.csv};
+            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/sigmoid/mean_NumSubInt_sigm.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/sigmoid/mean_NumSubInt_sigm.csv};
+
+       \nextgroupplot[title={\huge $f(x)=ae^{-\dfrac{{(x-b)}^2}{2c^2}}$},yshift=-2cm]
+       	\addlegendimage{binary}
+       	\addlegendentry{\huge binary};
+       	\addlegendimage{hierarchical}
+       	\addlegendentry{\huge hierarchical};
+       	\addlegendimage{sequential}
+       	\addlegendentry{\huge sequential};
+
+            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/gauss/mean_NumSubInt_gauss.csv};
+            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/gauss/mean_NumSubInt_gauss.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/gauss/mean_NumSubInt_gauss.csv};
+
+   \end{groupplot}
+
+}

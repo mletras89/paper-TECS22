@@ -1,0 +1,75 @@
+\newcommand{\legendSyn}
+{
+  \begin{scope}
+        \begin{axis}[
+                xbar stacked,
+                hide axis,
+                xmin=0,
+                xmax=1,
+                width=1cm,
+                height=1cm,
+                ymin=0,
+                ymax=0.4,
+                legend style={at={(0.5,-0.4)},anchor=north},
+                legend columns=5,
+                ]
+        \addlegendimage{draw=black,fill=applegreen!70}
+        \addlegendentry{LUTs}
+        
+        \addlegendimage{draw=black,fill=brandeisblue}
+        \addlegendentry{BRAMs}
+        
+        
+        \end{axis}
+    \end{scope}
+}
+
+\newcommand{\resultsSyn}{
+\pgfplotsset{height=8cm,width=16cm,compat=1.9}
+\begin{axis}[ylabel={\Large No. of Utilized LUTs},
+	enlargelimits=0.07,
+	ybar,
+	symbolic x coords={A,B,C,D,E,F,G,H,I},
+	bar width=0.6cm, bar shift=-0.3cm,
+	xtick=data,
+	axis y line*=left,
+	ymin=0,
+	ymax=140,
+	nodes near coords,
+    nodes near coords align={vertical},
+    ymax=150,
+    legend style={at={(0.25,-0.45)},anchor=west},
+    xticklabels={\Large \textit{Ref.},\Large \textit{Proposed}, \Large \textit{Ref.},\Large \textit{Proposed},\Large \textit{Ref.},\Large \textit{Proposed},\Large \textit{Ref.},\Large \textit{Proposed}}
+]
+
+\addplot[fill=applegreen!70,draw=black]	coordinates {(A,69) (B,120) (C,80) (D,140) (E,79) (F,138) (G,74) (H, 119)};
+       \addlegendentry{\huge $LUTs$}
+
+\end{axis}
+
+\begin{axis}[
+    ylabel={\Large No. of Utilized BRAMs},
+	enlargelimits=0.07,
+	ybar,
+	symbolic x coords={A,B,C,D,E,F,G,H,I},
+	bar width=0.6cm, bar shift=0.4cm,
+	axis y line*=right,
+	ymin=0,
+	nodes near coords,
+    nodes near coords align={vertical},
+    ymax=35,
+    legend style={at={(0.5,-0.45)},anchor=west},
+     xticklabels={,,}
+]
+
+\addplot[fill=brandeisblue, draw=black]	coordinates {(A,32) (B,3) (C,16) (D,6) (E,4) (F,1) (G,30) (H, 2)};
+       \addlegendentry{\huge $BRAMs$}
+\end{axis}
+
+%\node at (6.5,-3.1) {\resizebox{180pt}{!}{\begin{tikzpicture}\legendSyn \end{tikzpicture}}};
+
+\draw [decorate,decoration={brace,amplitude=10pt,mirror,raise=4pt},yshift=0pt] (0,-0.75) -- (3.5,-0.75) node [black,midway,xshift=0cm,yshift=-1cm] {\huge $sin(x)$};
+\draw [decorate,decoration={brace,amplitude=10pt,mirror,raise=4pt},yshift=0pt] (3.6,-0.75) -- (7.2,-0.75) node [black,midway,xshift=0cm,yshift=-1cm] {\huge $tan(x)$};
+\draw [decorate,decoration={brace,amplitude=10pt,mirror,raise=4pt},yshift=0pt] (7.3,-0.75) -- (10.8,-0.75) node [black,midway,xshift=0cm,yshift=-1cm] {\huge $log(x)$};
+\draw [decorate,decoration={brace,amplitude=10pt,mirror,raise=4pt},yshift=0pt] (10.9,-0.75) -- (14.4,-0.75) node [black,midway,xshift=0cm,yshift=-1cm] {\huge $tanh(x)$};
+}

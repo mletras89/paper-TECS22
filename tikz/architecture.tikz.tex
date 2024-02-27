@@ -1,0 +1,237 @@
+\tikzset{%
+        brace/.style = { decorate, decoration={brace, amplitude=5pt} },
+       mbrace/.style = { decorate, decoration={brace, amplitude=5pt, mirror} },
+        label/.style = { black, midway, scale=0.5, align=center },
+     toplabel/.style = { label, above=.5em, anchor=south },
+    leftlabel/.style = { label,rotate=-90,left=.5em,anchor=north },   
+  bottomlabel/.style = { label, below=.5em, anchor=north },
+        force/.style = { rotate=-90,scale=0.4 },
+        round/.style = { rounded corners=2mm },
+       legend/.style = { right,scale=0.4 },
+        nosep/.style = { inner sep=0pt },
+   generation/.style = { anchor=base }
+}
+\makeatletter
+\pgfdeclareshape{LUTShape}{
+  % The 'minimum width' and 'minimum height' keys, not the content, determine
+  % the size
+  \savedanchor\northeast{%
+    \pgfmathsetlength\pgf@x{\pgfshapeminwidth}%
+    \pgfmathsetlength\pgf@y{\pgfshapeminheight}%
+    \pgf@x=0.5\pgf@x
+    \pgf@y=0.5\pgf@y
+  }
+  % This is redundant, but makes some things easier:
+  \savedanchor\southwest{%
+    \pgfmathsetlength\pgf@x{\pgfshapeminwidth}%
+    \pgfmathsetlength\pgf@y{\pgfshapeminheight}%
+    \pgf@x=-0.5\pgf@x
+    \pgf@y=-0.5\pgf@y
+  }
+  % Inherit from rectangle
+  \inheritanchorborder[from=rectangle]
+  % Define same anchor a normal rectangle has
+  \anchor{center}{\pgfpointorigin}
+  \anchor{north}{\northeast \pgf@x=0pt}
+  \anchor{east}{\northeast \pgf@y=0pt}
+  \anchor{south}{\southwest \pgf@x=0pt}
+  \anchor{west}{\southwest \pgf@y=0pt}
+  \anchor{north east}{\northeast}
+  \anchor{north west}{\northeast \pgf@x=-\pgf@x}
+  \anchor{south west}{\southwest}
+  \anchor{south east}{\southwest \pgf@x=-\pgf@x}
+  \anchor{text}{
+    \pgfpointorigin
+    \advance\pgf@x by -.5\wd\pgfnodeparttextbox%
+    \advance\pgf@y by -.5\ht\pgfnodeparttextbox%
+    \advance\pgf@y by +.5\dp\pgfnodeparttextbox%
+  }
+  
+ \anchor{CLK}{
+    \pgf@process{\northeast}%
+    \pgf@x=-1\pgf@x%
+    \pgf@y=-.66666\pgf@y%
+  }
+ 
+  \anchor{outputLUT}{
+    \pgf@process{\northeast}%
+    \pgf@y=-0.1\pgf@y%
+  }
+  
+  \anchor{inLUT}{
+    \pgf@process{\northeast}%
+    \pgf@x=-1\pgf@x%
+    \pgf@y=-0.1\pgf@y%
+  }
+    
+  % Draw the rectangle box and the port labels
+  \backgroundpath{
+    % Rectangle box
+    \pgfpathrectanglecorners{\southwest}{\northeast}
+    % Angle (>) for clock input
+    \pgf@anchor@LUTShape@CLK
+    \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+    \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+    \pgf@xc=\pgf@x \pgf@yc=\pgf@y
+    \pgfmathsetlength\pgf@x{1.6ex} % size depends on font size
+    \advance\pgf@ya by \pgf@x
+    \advance\pgf@xb by \pgf@x
+    \advance\pgf@yc by -\pgf@x
+    \pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@ya}}
+    \pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yb}}
+    \pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yc}}
+    \pgfclosepath
+
+    % Draw port labels
+    \begingroup
+    	
+    	\pgf@anchor@LUTShape@outputLUT
+    	\pgftext[bottom,at={\pgfpoint{\pgf@x}{\pgf@y}},y=\pgfshapeinnerysep]{\scriptsize }
+        
+        \pgf@anchor@LUTShape@inLUT
+    	\pgftext[bottom,at={\pgfpoint{\pgf@x}{\pgf@y}},y=\pgfshapeinnerysep]{\scriptsize }
+    \endgroup
+  }
+}
+
+\newcommand{\archTableBased}
+{
+
+\tikzset{every LUTShape node/.style={draw,minimum width=1.3cm,minimum height=1.8cm,thick,inner sep=1mm,outer sep=0pt,cap=round}}
+
+\tikzset{mux 6by3/.style={muxdemux, muxdemux def={Lh=6, NL=0, Rh=4, NB=0, NR=1,w=1, square pins=1}}}
+
+\tikzset{mux 3by1/.style={muxdemux, muxdemux def={Lh=4, Rh=2,NL=3,NB=1, NR=1,w=2, square pins=1}}}
+
+\node [mux 6by3,] (right) at (0,0) {};
+\node [mux 6by3,rotate=180] (left) at (-2.5,0) {};
+
+\draw[draw=black,thick] (left.north west) rectangle (right.north west);
+
+\node (addGen) at (-5.0,0) [draw,thick,minimum width=1.5cm,minimum height=2.5cm] {\small \begin{tabular}{c} Address \\ Generator \end{tabular}};
+
+\node (intSel) at (-7.55,0) [draw,thick,minimum width=1.5cm,minimum height=2.5cm] {\small \begin{tabular}{c} Interval \\ Selector \end{tabular}};
+
+\node[shape=LUTShape] (registerOne) at (-10.2, 0){};
+
+\node (BRAM) at (-1.2,0) {BRAM};
+
+\node[shape=LUTShape] (registerThree) at (2.5, 3){};
+
+\node[shape=LUTShape] (registerFour) at (2.5, -0.3){};
+
+\node[shape=LUTShape] (registerFourF) at (2.5, -3.5){};
+
+\node[shape=LUTShape] (registerFive) at (2.5, 5){};
+
+\node[shape=LUTShape] (registerSix) at (2.5, -5.5){};
+
+
+\node (linInter) at (5.5,-0.3) [draw,thick,minimum width=1.5cm,minimum height=4cm] {\small \begin{tabular}{c} Linear \\ Interpolation \end{tabular}};
+
+\node[shape=LUTShape] (registerTwo) at (8.7, -0.3) {};
+
+\draw (intSel.east) to[multiwire] (addGen.west);
+\draw[<-,>=triangle 45] (addGen.west) to ($(addGen.west)-(0.2,0)$);
+\draw[->,>=triangle 45] (addGen.east) to (left.rpin 1);
+
+\draw ($(addGen.east)+(0.5,0)$) node[anchor=south] {$A_i$} to[short, *-] ($(addGen.east)+(0.5,-2.8)$) to ($(addGen.east)+(2.75,-2.8)$) node[fill=white,draw,thick,minimum width=1cm,minimum height=0.5cm,anchor=west] {$+1$} to ($(addGen.east)+(4.7,-2.8)$) |-  (right.rpin 1);
+\draw ($(addGen.east)+(0.5,-2.8)$) to[multiwire] ($(addGen.east)+(2.75,-2.8)$);
+
+\draw[->,>=triangle 45] (right.rpin 1) to ($(right.rpin 1)+(-0.2,0)$);
+
+\draw ($(addGen.east)+(0.8,0)$) to[multiwire] ($(addGen.east)+(1.2,0)$);
+
+%\draw[->,>=triangle 45] ($(BRAM)+(0,1.7)$) |- ($(registerThree.west)+(0,0.5)$);
+\draw[->,>=triangle 45] (intSel.north) |- ($(registerThree.west)+(0,0)$);
+\draw[] ($(registerThree.west)+(-7,0)$) to[multiwire=$\delta$,xshift=-0.3] (registerThree.west);
+
+\draw[->,>=triangle 45] (intSel.south) |- ($(registerFourF.west)+(0,0)$);
+\draw[] ($(registerFourF.west)+(-8,0)$) to[multiwire=$\frac{1}{\delta}$,xshift=-5cm] (registerFourF.west);
+
+%\draw[->,>=triangle 45] (addGen.south) to ($(addGen.south)+(0,-2)$) to ($(addGen.south)+(6,-2)$)|- ($(registerFour.west)+(0,0)$);
+\draw[->,>=triangle 45] ($(addGen.east)+(0.5,-2.8)$) node[anchor=south]{} to[short, *-] ($(addGen.east)+(0.5,-3.2)$) to ($(addGen.east)+(5,-3.2)$) |-  (registerFour.west);
+
+
+%\draw($(registerThree.west)+(-2.8,0.5)$) to[multiwire=$W^\Upsilon$] ($(registerThree.west)+(0,0.5)$);
+
+%\draw[->,>=triangle 45] ($(BRAM)+(0,-1.7)$) to ($(BRAM)+(0,-2.5)$) to ($(BRAM)+(2.3,-2.5)$) |- (registerFour.west);
+
+
+\draw[->,>=triangle 45] (registerOne.east) to (intSel.west);
+\draw[] (registerOne.east) to[multiwire=$W^{\Xi}$,xshift=-0.3] (intSel.west);
+
+\draw[->,>=triangle 45] (registerOne.east) to ($(registerOne.east)+(0.2,0)$) to[short, *-] ($(registerOne.east)+(0.2,5)$) to ($(registerFive.west)+(0,0)$);
+
+\draw[->,>=triangle 45] (registerFive.east) -|  ($(linInter.north)+(0.2,0)$);
+\draw (registerFive.east) to[multiwire] ($(registerFive.east)+(2,0)$);
+
+\draw[->,>=triangle 45] (registerThree.east) -|  ($(linInter.north)+(-0.2,0)$);
+\draw (registerThree.east) to[multiwire] ($(registerThree.east)+(2,0)$);
+
+\draw[->,>=triangle 45] (registerSix.east) -|  ($(linInter.south)+(0.2,0)$);
+\draw (registerSix.east) to[multiwire] ($(registerSix.east)+(2,0)$);
+
+\draw[->,>=triangle 45] (registerFourF.east) -|  ($(linInter.south)+(-0.2,0)$);
+\draw (registerFourF.east) to[multiwire] ($(registerFourF.east)+(2,0)$);
+
+\draw ($(registerOne.east)+(0.2,5)$) to[multiwire=$W^{\Xi}$] ($(registerFive.west)+(0,0)$);
+
+\draw[->,>=triangle 45] (linInter.east) to (registerTwo.west);
+\draw[] (linInter.east) to[multiwire=$W^\Upsilon$,xshift=-0.3] (registerTwo.west);
+
+\draw[] (intSel.east) to ($(intSel.east)+(0.1,0)$) to [short, *-] ($(intSel.east)+(0.3,0)$);
+\draw[->,>=triangle 45] ($(intSel.east)+(0.1,0)$)   |-  ($(registerSix.west)+(0,0)$);
+\draw[] ($(registerSix.west)+(-5,0)$)   to[multiwire]  ($(registerSix.west)+(0,0)$);
+
+\draw[->,>=triangle 45] ($(BRAM)+(0,1.7)$) to ($(BRAM)+(0,2.1)$) to ($(BRAM)+(2,2.1)$) |- ($(linInter.west)+(0,1.4)$);
+\draw ($(linInter.west)+(-0.6,1.4)$) to[multiwire] ($(linInter.west)+(0,1.4)$);
+\draw ($(BRAM)+(0,2.1)$) to[multiwire=$W^\Upsilon$] ($(BRAM)+(2,2.1)$);
+
+\draw[->,>=triangle 45] ($(BRAM)+(0,-1.7)$) to ($(BRAM)+(0,-2.1)$)  to ($(BRAM)+(4.8,-2.1)$)  |- ($(linInter.west)+(0,-1.4)$);
+\draw ($(linInter.west)+(-0.6,-1.4)$) to[multiwire] ($(linInter.west)+(0,-1.4)$);
+\draw ($(BRAM)+(0.3,-2.1)$) to[multiwire=$W^\Upsilon$] ($(BRAM)+(2.6,-2.1)$);
+
+\draw[<-,>=triangle 45] (registerOne.west) to ($(registerOne.west)+(-0.8,0)$) node[anchor=east] {$\Xi$};
+\draw (registerOne.west) to[multiwire=$W^{\Xi}$] ($(registerOne.west)+(-0.8,0)$);
+
+\draw[->,>=triangle 45] (registerFour) -- (linInter);
+\draw (registerFour) to[multiwire] (linInter);
+
+\draw ($(registerFour.west)+(-0.5,0)$) to[multiwire] (registerFour.west);
+
+% clk signals
+\draw (registerOne.CLK) to ($(registerOne.CLK)+(-0.3,0)$) to ($(registerOne.CLK)+(-0.3,-0.5)$) node[anchor=north] {clk};
+\draw (registerTwo.CLK) to ($(registerTwo.CLK)+(-0.3,0)$) to ($(registerTwo.CLK)+(-0.3,-0.5)$) node[anchor=north] {clk};
+
+\draw (registerThree.CLK) to ($(registerThree.CLK)+(-0.3,0)$) to ($(registerThree.CLK)+(-0.3,-0.5)$) node[anchor=north] {clk};
+\draw (registerFour.CLK) to ($(registerFour.CLK)+(-0.3,0)$) to ($(registerFour.CLK)+(-0.3,-0.5)$) node[anchor=north] {clk};
+\draw (registerFourF.CLK) to ($(registerFourF.CLK)+(-0.3,0)$) to ($(registerFourF.CLK)+(-0.3,-0.5)$) node[anchor=north] {clk};
+
+
+\draw (registerFive.CLK) to ($(registerFive.CLK)+(-0.3,0)$) to ($(registerFive.CLK)+(-0.3,-0.5)$) node[anchor=north] {clk};
+
+\draw (registerSix.CLK) to ($(registerSix.CLK)+(-0.3,0)$) to ($(registerSix.CLK)+(-0.3,-0.5)$) node[anchor=north] {clk};
+
+\draw[->,>=triangle 45] (registerTwo.east) to ($(registerTwo.east)+(0.7,0)$) node[anchor=west] {$\Upsilon$};
+\draw (registerTwo.east) to[multiwire=$W^\Upsilon$] ($(registerTwo.east)+(0.7,0)$);
+
+\draw[->,>=triangle 45] (registerOne.east) to ($(registerOne.east)+(0.2,0)$) to[short, *-] ($(registerOne.east)+(0.2,-2.1)$) to ($(registerOne.east)+(3.1,-2.1)$) |- ($(addGen.west)+(0,-0.4)$);
+
+\draw ($(registerOne.east)+(0.2,-2.1)$) to[multiwire=$W^\Xi$] ($(registerOne.east)+(2.9,-2.1)$);]
+
+
+%\draw[line width=0.3mm,dashed] (-12.2,6.5) to (-12.2,-7.5);
+\draw[line width=0.3mm,dashed] (-9.45,6.5) to (-9.45,-7.5);
+\draw[line width=0.3mm,dashed] (-3.25,6.5) to (-3.25,-7.5);
+\draw[line width=0.3mm,dashed] (3.5,6.5) to (3.5,-7.5);
+\draw[line width=0.3mm,dashed] (7,6.5) to (7,-7.5);
+%\draw[line width=0.3mm,dashed] (10.5,6.5) to (10.5,-7.5);
+
+%\draw [decorate,decoration={brace,amplitude=10pt,mirror,raise=4pt},yshift=0pt] (-12.2,-7.5) -- (-9.5,-7.5) node [black,midway,xshift=0cm,yshift=-1cm] {1 clock cycle};
+\draw [decorate,decoration={brace,amplitude=10pt,mirror,raise=4pt},yshift=0pt] (-9.45,-7.5) -- (-3.3,-7.5) node [black,midway,xshift=0cm,yshift=-1cm] {3 clock cycles};
+\draw [decorate,decoration={brace,amplitude=10pt,mirror,raise=4pt},yshift=0pt] (-3.25,-7.5) -- (3.45,-7.5) node [black,midway,xshift=0cm,yshift=-1cm] {1 clock cycle};
+\draw [decorate,decoration={brace,amplitude=10pt,mirror,raise=4pt},yshift=0pt] (3.5,-7.5) -- (6.9,-7.5) node [black,midway,xshift=0cm,yshift=-1cm] {5 clock cycles};
+%\draw [decorate,decoration={brace,amplitude=10pt,mirror,raise=4pt},yshift=0pt] (7,-7.5) -- (10.5,-7.5) node [black,midway,xshift=0cm,yshift=-1cm] {1 clock cycle};
+
+}

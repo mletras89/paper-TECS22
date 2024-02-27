@@ -1,0 +1,266 @@
+
+\newcommand{\ResourcesMemoryFootprint}{
+\pgfplotsset{every tick label/.append style={font=\huge}}
+    \begin{groupplot}[group style={group size= 3 by 3, vertical sep=0cm},
+                      height=6cm,width=10cm,xlabel={\Huge$n$},
+		     legend style = {at={(-1.6,-0.6)},anchor=west},
+                      legend columns = 3,ybar, axis y line*=left,
+                      %ymajorgrids,
+                      every major tick/.append style={very thick,black},
+                      ]
+       % tan 
+        \nextgroupplot[title={\huge $f(x)=tan(x)$},ylabel={\Huge $M_F$},xlabel={},symbolic x coords={n=1,n=3,n=5,n=13,n=17,n=29}]
+            \addplot[memFBar,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_tan.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_tan-pattern.csv};
+	%log
+        \nextgroupplot[title={\huge $f(x)=log(x)$},xshift=0.7cm,scaled y ticks=base 10:-3,xlabel={},symbolic x coords={n=1,n=2,n=4,n=8,n=16,n=29}]
+            \addplot[memFBar,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_log.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_log-pattern.csv};
+	%exp
+        \nextgroupplot[title={\huge $f(x)=e^x$},xshift=0.7cm,xlabel={},xlabel={},symbolic x coords={n=1,n=2,n=4,n=8,n=16,n=29}]
+            \addplot[memFBar,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_exp.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_exp-pattern.csv};
+	%tanh
+        \nextgroupplot[title={\huge $f(x)=tanh(x)$},ylabel={\Huge $M_F$},scaled y ticks=base 10:-3,yshift=-2.75cm,xlabel={},symbolic x coords={n=1,n=5,n=9,n=13,n=17,n=29}]
+            \addplot[memFBar,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_tanh.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_tanh-pattern.csv};
+	%gaussian
+        \nextgroupplot[title={\huge $f(x)=e^{(-x^{2}/{2})}$},scaled y ticks=base 10:-3,yshift=-2.75cm,xlabel={},symbolic x coords={n=1,n=7,n=9,n=13,n=17,n=29}]
+            \addplot[memFBar,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_gauss.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_gauss-pattern.csv};
+	%sigmoid
+        \nextgroupplot[title={\huge $f(x)=\dfrac{1}{1+e^{-x}}$},scaled y ticks=base 10:-3,yshift=-2.75cm,xlabel={},symbolic x coords={n=1,n=5,n=9,n=13,n=17,n=29}]
+            \addplot[memFBar,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_sigmoid.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_sigmoid-pattern.csv};
+	%swish
+        \nextgroupplot[title={\huge $f(x)=\dfrac{x}{1+e^{-x}}$},ylabel={\Huge $M_F$},scaled y ticks=base 10:-3,yshift=-4cm,xlabel={},symbolic x coords={n=1,n=3,n=11,n=13,n=18,n=19}]
+            \addplot[memFBar,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_swish.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_swish-pattern.csv};
+	%GELU
+        \nextgroupplot[title={\huge $f(x)=\dfrac{x}{2}\left(1+erf\left(\dfrac{x}{\sqrt{2}}\right)\right)$},scaled y ticks=base 10:-3,yshift=-4cm,xlabel={},symbolic x coords={n=1,n=3,n=11,n=13,n=21,n=23}]
+            \addplot[memFBar,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_GELU.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_GELU-pattern.csv};
+	%softplus
+        \nextgroupplot[title={\huge $f(x)=log(1+e^x)$},scaled y ticks=base 10:-3,yshift=-4cm,xlabel={},symbolic x coords={n=1,n=6,n=9,n=18,n=23,n=26}]
+            \addplot[memFBar,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_softplus.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=1,col sep=comma] {result/results_softplus-pattern.csv};
+   \end{groupplot}
+
+   \begin{groupplot}[group style={group size= 3 by 3,vertical sep=0cm},
+                    height=6cm,width=10cm,xlabel={\Huge$n$},
+		     legend style = {at={(-1.6,-0.6)},anchor=west},
+                      legend columns = 3,ybar, 
+                      axis y line*=right,
+                      ylabel near ticks, yticklabel pos=right,
+                      every major tick/.append style={very thick,black},
+                      ]                    
+       % tan 
+        \nextgroupplot[title={\huge $f(x)=tan(x)$},ylabel={},xlabel={},symbolic x coords={n=1,n=3,n=5,n=13,n=17,n=29} ]
+            \addplot[BRAMBar,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_tan.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_tan-pattern.csv};
+	%log
+        \nextgroupplot[title={\huge $f(x)=log(x)$},xshift=0.7cm,xlabel={},symbolic x coords={n=1,n=2,n=4,n=8,n=16,n=29}]
+%            \draw[line width=0.1mm,draw=red,dashed] (axis cs: -2,8691) -- (axis cs:33,8691);
+            \addplot[BRAMBar,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_log.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_log-pattern.csv};
+	%exp
+        \nextgroupplot[title={\huge $f(x)=e^x$},xshift=0.7cm,xlabel={},ylabel={\huge No. of BRAMs},symbolic x coords={n=1,n=2,n=4,n=8,n=16,n=29}]
+            \addplot[BRAMBar,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_exp.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_exp-pattern.csv};
+	%tanh
+        \nextgroupplot[title={\huge $f(x)=tanh(x)$},ylabel={ },yshift=-2.75cm,xlabel={},symbolic x coords={n=1,n=5,n=9,n=13,n=17,n=29}]
+            \addplot[BRAMBar,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_tanh.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_tanh-pattern.csv};
+
+%gaussian
+        \nextgroupplot[title={\huge $f(x)=e^{(-x^{2}/{2})}$},yshift=-2.75cm,xlabel={},symbolic x coords={n=1,n=7,n=9,n=13,n=17,n=29}]
+            \addplot[BRAMBar,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_gauss.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_gauss-pattern.csv};
+
+	%sigmoid
+        \nextgroupplot[title={\huge $f(x)=\dfrac{1}{1+e^{-x}}$},yshift=-2.75cm,xlabel={},ylabel={\huge No. of BRAMs},symbolic x coords={n=1,n=5,n=9,n=13,n=17,n=29}]
+            \addplot[BRAMBar,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_sigmoid.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_sigmoid-pattern.csv};
+
+	%swish
+        \nextgroupplot[title={\huge $f(x)=\dfrac{x}{1+e^{-x}}$},ylabel={ },yshift=-4cm,xlabel={},symbolic x coords={n=1,n=3,n=11,n=13,n=18,n=19}]
+%            \draw[line width=0.1mm,draw=red,dashed] (axis cs: -2,5085) -- (axis cs:33,5085);
+            \addplot[BRAMBar,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_swish.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_swish-pattern.csv};
+
+	%GELU
+        \nextgroupplot[title={\huge $f(x)=\dfrac{x}{2}\left(1+erf\left(\dfrac{x}{\sqrt{2}}\right)\right)$},yshift=-4cm,xlabel={},symbolic x coords={n=1,n=3,n=11,n=13,n=21,n=23}]
+            \addplot[BRAMBar,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_GELU.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_GELU-pattern.csv};
+
+	%softplus
+        \nextgroupplot[title={\huge $f(x)=log(1+e^x)$},yshift=-4cm,xlabel={},ylabel={\huge No. of BRAMs},symbolic x coords={n=1,n=6,n=9,n=18,n=23,n=26}]
+            \addlegendimage{memFBar}
+            \addlegendentry{\Huge Memory footprint ($M_F$)};
+            \addlegendimage{BRAMBar}
+            \addlegendentry{\Huge No. of Utilized BRAMs};
+
+            \addplot[BRAMBar,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_softplus.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=3,col sep=comma] {result/results_softplus-pattern.csv};
+   \end{groupplot}
+
+   \node at (0.5,-1) {\huge \textbf{Reference}};
+   \node at (10.75,-1) {\huge \textbf{Reference}};
+   \node at (21,-1)    {\huge \textbf{Reference}};
+
+   \node at (0.5,-8.2)   {\huge \textbf{Reference}};
+   \node at (10.75,-8.2) {\huge \textbf{Reference}};
+   \node at (21,-8.2)    {\huge \textbf{Reference}};
+
+   \node at (0.5,-16.5)   {\huge \textbf{Reference}};
+   \node at (10.75,-16.5) {\huge \textbf{Reference}};
+   \node at (21,-16.5)    {\huge \textbf{Reference}};
+
+\node at (14.2,-8.8) {\Huge [gaussian]};
+\node at (24.5,-8.8) {\Huge [sigmoid]};
+
+\node at (4.25,-17.15) {\Huge [swish]};
+\node at (14.2,-17.15) {\Huge [GELU]};
+\node at (24.5,-17.15) {\Huge [softplus]};
+
+}
+
+
+
+\newcommand{\ResourcesLUTFrequency}{
+\pgfplotsset{every tick label/.append style={font=\huge}}
+    \begin{groupplot}[group style={group size= 3 by 3,vertical sep=0cm},
+                     height=6cm,width=10cm,xlabel={\Huge$n$}, ylabel shift=-0.2cm,
+		     legend style = {at={(-1.5,-0.5)},anchor=west},
+                     legend columns = 3,ybar, axis y line*=left,ylabel shift=-1cm,
+                    every major tick/.append style={very thick,black},
+                    ylabel shift={0.25cm},
+                    ] 
+       % tan 
+        \nextgroupplot[title={\huge $f(x)=tan(x)$},scaled y ticks=base 10:-3,ylabel={\huge No. of LUTs},xlabel={},symbolic x coords={n=1,n=3,n=5,n=13,n=17,n=29}]
+            \addplot[LUTBar,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_tan.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_tan-pattern.csv};
+
+	%log
+        \nextgroupplot[title={\huge $f(x)=log(x)$},xshift=1.2cm,scaled y ticks=base 10:-3,xlabel={},symbolic x coords={n=1,n=2,n=4,n=8,n=16,n=29}]
+            \addplot[LUTBar,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_log.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_log-pattern.csv};
+
+	%exp
+        \nextgroupplot[title={\huge $f(x)=e^x$},xshift=1.2cm,scaled y ticks=base 10:-3,xlabel={},xlabel={},symbolic x coords={n=1,n=2,n=4,n=8,n=16,n=29}]
+            \addplot[LUTBar,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_exp.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_exp-pattern.csv};
+
+	%tanh
+        \nextgroupplot[title={\huge $f(x)=tanh(x)$},ylabel={\huge No. of LUTs},scaled y ticks=base 10:-3,yshift=-2.75cm,xlabel={},symbolic x coords={n=1,n=5,n=9,n=13,n=17,n=29}]
+            \addplot[LUTBar,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_tanh.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_tanh-pattern.csv};
+
+	%gaussian
+        \nextgroupplot[title={\huge $f(x)=e^{(-x^{2}/2)}$},scaled y ticks=base 10:-3,yshift=-2.75cm,xlabel={},symbolic x coords={n=1,n=7,n=9,n=13,n=17,n=29}]
+            \addplot[LUTBar,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_gauss.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_gauss-pattern.csv};
+
+	%sigmoid
+        \nextgroupplot[title={\huge $f(x)=\dfrac{1}{1+e^{-x}}$},scaled y ticks=base 10:-3,yshift=-2.75cm,xlabel={},symbolic x coords={n=1,n=5,n=9,n=13,n=17,n=29}]
+            \addplot[LUTBar,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_sigmoid.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_sigmoid-pattern.csv};
+
+	%swish
+        \nextgroupplot[title={\huge $f(x)=\dfrac{x}{1+e^{-x}}$},ylabel={\huge No. of LUTs},scaled y ticks=base 10:-3,yshift=-4cm,xlabel={},symbolic x coords={n=1,n=3,n=11,n=13,n=18,n=19}]
+            \addplot[LUTBar,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_swish.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_swish-pattern.csv};
+
+	%GELU
+        \nextgroupplot[title={\huge $f(x)=\dfrac{x}{2}\left(1+erf\left(\dfrac{x}{\sqrt{2}}\right)\right)$},scaled y ticks=base 10:-3,yshift=-4cm,xlabel={},symbolic x coords={n=1,n=3,n=11,n=13,n=21,n=23}]
+            \addplot[LUTBar,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_GELU.csv};
+           \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_GELU-pattern.csv};
+
+	%softplus
+        \nextgroupplot[title={\huge $f(x)=log(1+e^x)$},scaled y ticks=base 10:-3,yshift=-4cm,xlabel={},symbolic x coords={n=1,n=6,n=9,n=18,n=23,n=26}]
+            \addplot[LUTBar,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_softplus.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=-0.2cm] table[x index =0,y index=2,col sep=comma] {result/results_softplus-pattern.csv}; 
+
+   \end{groupplot}
+   \begin{groupplot}[group style={group size= 3 by 3,vertical sep=0cm},
+                     height=6cm,width=10cm,xlabel={\Huge$n$},
+		     legend style = {at={(-1.5,-0.6)},anchor=west},
+                      legend columns = 3,ybar, 
+                      axis y line*=right,
+                      ylabel near ticks, yticklabel pos=right,ymin=0,ymax=170,
+                    every major tick/.append style={very thick,black},
+                    ylabel shift={0.25cm},
+                    ]  
+       % tan 
+        \nextgroupplot[title={\huge $f(x)=tan(x)$},ylabel={},xlabel={},symbolic x coords={n=1,n=3,n=5,n=13,n=17,n=29}]
+            \addplot[FreqBar,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_tan.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_tan-pattern.csv}; 
+
+	%log
+        \nextgroupplot[title={\huge $f(x)=log(x)$},xshift=1.2cm,xlabel={},symbolic x coords={n=1,n=2,n=4,n=8,n=16,n=29}]
+            \addplot[FreqBar,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_log.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_log-pattern.csv}; 
+
+	%exp
+        \nextgroupplot[title={\huge $f(x)=e^x$},xshift=1.2cm,xlabel={},ylabel={\huge Frequency (MHz)},symbolic x coords={n=1,n=2,n=4,n=8,n=16,n=29}]
+            \addplot[FreqBar,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_exp.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_exp-pattern.csv}; 
+
+	%tanh
+        \nextgroupplot[title={\huge $f(x)=tanh(x)$},ylabel={ },yshift=-2.75cm,xlabel={},symbolic x coords={n=1,n=5,n=9,n=13,n=17,n=29}]
+            \addplot[FreqBar,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_tanh.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_tanh-pattern.csv}; 
+
+	%gaussian
+        \nextgroupplot[title={\huge $f(x)=e^{(-x^{2}/2)}$},yshift=-2.75cm,xlabel={},symbolic x coords={n=1,n=7,n=9,n=13,n=17,n=29}]
+            \addplot[FreqBar,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_gauss.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_gauss-pattern.csv}; 
+
+        %sigmoid
+        \nextgroupplot[title={\huge $f(x)=\dfrac{1}{1+e^{-x}}$},yshift=-2.75cm,xlabel={},ylabel={\huge Frequency (MHz)},symbolic x coords={n=1,n=5,n=9,n=13,n=17,n=29}]
+            \addplot[FreqBar,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_sigmoid.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_sigmoid-pattern.csv};
+
+	%swish
+        \nextgroupplot[title={\huge $f(x)=\dfrac{x}{1+e^{-x}}$},yshift=-4cm,xlabel={},symbolic x coords={n=1,n=3,n=11,n=13,n=18,n=19}]
+            \addplot[FreqBar,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_swish.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_swish-pattern.csv}; 
+	
+        %GELU
+        \nextgroupplot[title={\huge $f(x)=\dfrac{x}{2}\left(1+erf\left(\dfrac{x}{\sqrt{2}}\right)\right)$},yshift=-4cm,xlabel={},symbolic x coords={n=1,n=3,n=11,n=13,n=21,n=23}]
+            \addplot[FreqBar,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_GELU.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_GELU-pattern.csv}; 
+	
+        %softplus
+        \nextgroupplot[title={\huge $f(x)=log(1+e^x)$},yshift=-4cm,xlabel={},ylabel={\huge Frequency (MHz)},symbolic x coords={n=1,n=5,n=9,n=13,n=17,n=29}]
+            \addlegendimage{LUTBar}
+            \addlegendentry{\Huge No. of Utilized LUTs};
+            \addlegendimage{FreqBar}
+            \addlegendentry{\Huge Clock Frequency};
+            \addplot[FreqBar,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_sigmoid.csv};
+            \addplot[pattern=north west lines, pattern color=black!50,bar shift=0.2cm] table[x index =0,y index=4,col sep=comma] {result/results_softplus-pattern.csv}; 
+
+   \end{groupplot}
+
+   \node at (0.5,-1) {\huge \textbf{Reference}};
+   \node at (10.75,-1) {\huge \textbf{Reference}};
+   \node at (21,-1)    {\huge \textbf{Reference}};
+
+   \node at (0.5,-8.2)   {\huge \textbf{Reference}};
+   \node at (10.75,-8.2) {\huge \textbf{Reference}};
+   \node at (21,-8.2)    {\huge \textbf{Reference}};
+
+   \node at (0.5,-16.5)   {\huge \textbf{Reference}};
+   \node at (10.75,-16.5) {\huge \textbf{Reference}};
+   \node at (21,-16.5)    {\huge \textbf{Reference}};
+
+\node at (14.2,-8.8) {\Huge [gaussian]};
+\node at (25.5,-8.8) {\Huge [sigmoid]};
+
+\node at (4.25,-17.15) {\Huge [swish]};
+\node at (14.2,-17.15) {\Huge [GELU]};
+\node at (25.5,-17.15) {\Huge [softplus]};
+
+}
+
+

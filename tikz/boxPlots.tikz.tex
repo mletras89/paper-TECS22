@@ -1,0 +1,80 @@
+\usepgfplotslibrary{statistics}
+
+\pgfplotsset{
+    boxplot prepared from table/.code={
+        \def\tikz@plot@handler{\pgfplotsplothandlerboxplotprepared}%
+        \pgfplotsset{
+            /pgfplots/boxplot prepared from table/.cd,
+            #1,
+        }
+    },
+    /pgfplots/boxplot prepared from table/.cd,
+        table/.code={\pgfplotstablecopy{#1}\to\boxplot@datatable},
+        row/.initial=0,
+        make style readable from table/.style={
+            #1/.code={
+                \pgfplotstablegetelem{\pgfkeysvalueof{/pgfplots/boxplot prepared from table/row}}{##1}\of\boxplot@datatable
+                \pgfplotsset{boxplot/#1/.expand once={\pgfplotsretval}}
+            }
+        },
+        make style readable from table=lower whisker,
+        make style readable from table=upper whisker,
+        make style readable from table=lower quartile,
+        make style readable from table=upper quartile,
+        make style readable from table=median,
+        make style readable from table=lower notch,
+        make style readable from table=upper notch
+}
+
+\pgfplotstableread[col sep = comma]{result/exp/binary_box_plot.csv}\binaryEx
+
+\newcommand{\BoxPlots}{
+\pgfplotsset{every tick label/.append style={font=\Large}}
+\pgfplotstablegetrowsof{\binaryEx}
+\pgfmathtruncatemacro\TotalRows{\pgfplotsretval-1}
+\pgfplotsinvokeforeach{0,...,\TotalRows}
+
+    \begin{groupplot}[group style={group size= 1 by 4},height=5cm,width=12cm,xlabel={\Huge$\omega$},
+		     legend style = {at={(-0.4,-0.25)},anchor=west},
+                      legend columns = 3,]
+        
+        \nextgroupplot[title={\huge $f(x)=e^x$}]
+        \addplot+[
+        boxplot prepared from table={table=\binaryEx,row=#1,lower whisker=lw,upper whisker=uw, lower quartile=lq,
+           upper quartile=uq, median=med},
+           boxplot prepared,
+            % to get a more useful legend
+            %area legend
+            color=amaranth,
+            solid,
+            %dashed,
+            fill=amaranth!20,
+            ] coordinates {};
+%            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/exp/mean_exp.csv};
+%            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/exp/mean_exp.csv};
+%            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/exp/mean_exp.csv};
+
+        \nextgroupplot[title={\huge $f(x)=log(x)$}]
+%            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/log/mean_log.csv};
+%            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/log/mean_log.csv};
+%            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/log/mean_log.csv};
+%
+        \nextgroupplot[title={\huge $f(x)=tan(x)$},ylabel={\huge $mean(MF)$},yshift=-1.5cm]
+%            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/tan/mean_tan.csv};
+%            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/tan/mean_tan.csv};
+%            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/tan/mean_tan.csv};
+%
+        \nextgroupplot[title={\huge $f(x)=tanh(x)$},yshift=-1.5cm]
+%		\addlegendimage{binary}
+%		\addlegendentry{binary};
+%		\addlegendimage{hierarchical}
+%		\addlegendentry{hierarchical};
+%		\addlegendimage{sequential}
+%		\addlegendentry{sequential};
+%
+%            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/tanh/mean_tanh.csv};
+%            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/tanh/mean_tanh.csv};
+%            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/tanh/mean_tanh.csv};
+
+   \end{groupplot}
+}

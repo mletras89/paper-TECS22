@@ -1,0 +1,94 @@
+\newcommand{\ErrorFirst}{
+      \pgfplotsset{%compat=1.14,         
+            width=9cm,
+            height=4cm,
+            }
+        \begin{axis}[grid=both,
+          ymin=0,
+%          xmax=15.7,ymax=3,
+          axis lines=middle,
+          enlargelimits
+          ]
+         
+          \addplot[smooth,black,mark=none,line width=0.05pt,color=black] table[x=x,y=y] {../figures/src/error_01.dat};    
+        \end{axis}
+
+}
+
+\newcommand{\ErrorSecond}{
+      \pgfplotsset{%compat=1.14,         
+            width=9cm,
+            height=4cm,
+            }
+        \begin{axis}[grid=both,
+          ymin=0,
+%          xmax=15.7,ymax=3,
+          axis lines=middle,
+          enlargelimits
+          ]
+         
+         \addplot[smooth,black,mark=none,line width=0.05pt,color=ao] table[x=x,y=y] {../figures/src/error_02.dat};
+        \end{axis}
+
+}
+
+
+\newcommand{\ErrorThird}{
+      \pgfplotsset{%compat=1.14,         
+            width=9cm,
+            height=4cm,
+            }
+        \begin{axis}[grid=both,
+          ymin=0,
+%          xmax=15.7,ymax=3,
+          axis lines=middle,
+          enlargelimits
+          ]
+         
+          \addplot[smooth,black,mark=none,line width=0.05pt,color=ao] table[x=x,y=y] {../figures/src/error_03.dat};
+        \end{axis}
+
+}
+
+
+\newcommand{\ErrorFourth}{
+      \pgfplotsset{%compat=1.14,         
+            width=9cm,
+            height=4cm,
+            }
+        \begin{axis}[grid=both,
+          ymin=0,
+%          xmax=15.7,ymax=3,
+          axis lines=middle,
+          enlargelimits
+          ]
+         
+         \addplot[smooth,black,mark=none,line width=0.05pt,color=ao] table[x=x,y=y] {../figures/src/error_04.dat};
+        \end{axis}
+
+}
+
+
+\newcommand{\ErrorPlots}{
+\pgfplotsset{every tick label/.append style={font=\Large}}
+    \begin{groupplot}[group style={group size= 2 by 2},height=5cm,width=10cm]%,ymax=1.5E-4]
+        
+        \nextgroupplot[title={\huge $[0.625,2.5)$},ylabel={\huge $E$}]
+            \addplot[samples=16000,black,mark=none,line width=0.05pt,color=ao!60] table[x=x,y=y] {tikz/error_01.dat};
+            \draw[very thick, densely dashed,draw=red] (axis cs: 0,1.25E-4) --node[yshift=0cm,xshift=1cm,below,color=red]{\huge$\AbsError$} (axis cs:2.6,1.25E-4);
+
+        \nextgroupplot[title={\huge $[2.5,4.375)$}]
+            \addplot[samples=16000,black,mark=none,line width=0.05pt,color=ao!60] table[x=x,y=y] {tikz/error_02.dat};
+%             \draw[very thick, densely dashed,draw=red] (axis cs: 2.4,1.25E-4) --node[xshift=0cm,below,color=red]{\huge $\AbsError$} (axis cs:4.4,1.25E-4);
+%
+        \nextgroupplot[yshift=-1cm,title={\huge $[4.375,8.125)$},ylabel={\huge $E$}]
+            \addplot[samples=16000,black,mark=none,line width=0.05pt,color=ao!60] table[x=x,y=y] {tikz/error_03.dat};
+             \draw[very thick, densely dashed,draw=red] (axis cs: 4.3,1.25E-4) --node[xshift=0cm,below,color=red]{\huge $\AbsError$} (axis cs:8.2,1.25E-4);
+%
+        \nextgroupplot[yshift=-1cm,title={\huge $[8.125,15.625]$}]
+            \addplot[samples=16000,black,mark=none,line width=0.05pt,color=ao!60] table[x=x,y=y] {tikz/error_04.dat};
+             \draw[very thick, densely dashed,draw=red] (axis cs: 8.1,1.25E-4) --node[xshift=0cm,below,color=red]{\huge $\AbsError$} (axis cs:15.8,1.25E-4);
+
+
+   \end{groupplot}
+}

@@ -1,0 +1,221 @@
+%\documentclass[manuscript,screen,review]{acmart}
+\documentclass[acmsmall]{acmart}
+\usepackage[utf8]{inputenc}
+\usepackage[nolist]{acronym}
+\usepackage{booktabs}
+\usepackage{color, colortbl}
+\usepackage{xfrac}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{todonotes}
+
+\usepackage{placeins}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{float}
+%\usepackage{afterpage}
+\usepackage{caption}
+\usepackage{subcaption}
+%\captionsetup{belowskip=-0.5cm}
+\usepackage{pgfgantt}
+\usepackage{bigstrut}
+\usepackage{rotating}
+\hypersetup{draft}
+\usepackage{listings}
+\usepackage{tikz}
+% pdflatex -shell-escape paper.tex
+\usetikzlibrary{external}
+% Enable the library !!!>>> MUST be in the preamble <<<!!!!
+\tikzexternalize[prefix=plots/]
+\usetikzlibrary{snakes,backgrounds,patterns,automata,positioning,arrows,shapes.gates.logic.US,shapes.gates.logic.IEC, shapes.gates.logic.US,matrix,calc,shadows.blur,decorations.pathreplacing,fit,mindmap}
+\usepackage{tkz-fct}  
+\usepackage{circuitikz}
+\usetikzlibrary{plotmarks}
+\usepgfplotslibrary{groupplots}
+%\usepackage{algorithm}
+\usepackage[ruled,linesnumbered]{algorithm2e}   
+\usepackage{algpseudocode}
+\newcommand*\Let[2]{\State #1 $\gets$ #2}
+%\algdef{SE}[VARIABLES]{Variables}{EndVariables}
+%   {\algorithmicvariables}
+%   {\algorithmicend\ \algorithmicvariables}
+%\algnewcommand{\algorithmicvariables}{\textbf{global variables}}
+\usepackage{multirow}
+\usepackage{tkz-kiviat}
+\usepackage[capitalise]{cleveref}
+\pgfplotsset{compat=newest}
+
+\renewcommand{\figurename}{Fig.}
+\crefname{section}{Sec.}{Sects.}
+% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+% Rights management information. 
+% This information is sent to you when you complete the rights form.
+% These commands have SAMPLE values in them; it is your responsibility as an author to replace
+% the commands and values with those provided to you when you complete the rights form.
+%
+% These commands are for a PROCEEDINGS abstract or paper.
+%\acmJournal{TODAES}
+%\copyrightyear{2020}
+%\acmYear{2020}
+% Copyright and DOI provided by ACM
+\setcopyright{acmlicensed}
+\acmJournal{TECS}
+\acmYear{2023} \acmVolume{1} \acmNumber{1} \acmArticle{1} \acmMonth{1} \acmPrice{15.00}
+%\acmDOI{10.1145/3431814}
+%\setcopyright{acmlicensed}
+%\acmConference[Woodstock '19]{Woodstock '19: ACM Symposium on Neural Gaze Detection}{June 03--05, 2020}{Woodstock, NY}
+%\acmBooktitle{Woodstock '18: ACM Symposium on Neural Gaze Detection, June 03--05, 2020, Woodstock, NY}
+%\acmPrice{15.00}
+%\acmDOI{10.1145/1122445.1122456}
+%\acmISBN{978-1-4503-9999-9/18/06}
+\newcommand{\DesignFlowName}{our design flow\xspace}
+\newcommand{\SystemCoDesigner}{\textsc{SystemCoDesigner}\xspace} % for SystemCoDesigner font
+\newcommand{\AbsError}{E_a}
+\newcommand{\IntError}{E_{int}}
+\newcommand{\SetPartitions}{P}
+\newcommand{\Fx}{f(x)}
+\newcommand{\variable}{x}
+\newcommand{\Partition}[1]{p_{#1}}
+\newcommand{\SetSpacings}{S}
+\newcommand{\Spacing}[1]{\delta_{#1}}
+\newcommand{\SetNBreakpoints}{K}
+\newcommand{\NBreakpoints}[1]{\kappa_{#1}}
+\newcommand{\MemF}{M_{F}}
+%\newcommand{\getBreakPoints}[1]{\omega({#1})}
+\newcommand{\ReductionThreshold}{\omega}
+\newcommand{\LowerBound}{x_{0}}
+\newcommand{\UpperBound}{x_{0}+a}
+\newcommand{\Interval}{[\LowerBound,\UpperBound)}
+\newcommand{\SetBreakpoints}{X}
+\newcommand{\SetRangeBreakpoints}{Y}
+\newcommand{\Breakpoint}[1]{x_{#1}}
+\newcommand{\RangeBreakpoint}[1]{y_{#1}}
+\newcommand{\IndexLocation}{i}
+\newcommand{\Reference}{\textit{Reference}}
+%\newcommand{\Revision}[1]{\textcolor{blue}{#1}}
+%\newcommand{\Revision}[1]{{\color{blue}#1}}
+\newcommand{\Revision}[1]{{\color{blue}#1}}
+\newcommand{\Proposed}{\textit{Proposed}}
+\newcommand{\Binary}{\textit{binary segmentation}}
+\newcommand{\Hierarchical}{\textit{hierarchical segmentation}}
+\newcommand{\Sequential}{\textit{sequential segmentation}}
+\newcommand{\StepSize}{\varepsilon}
+\newcommand{\Gaussian}{e^{(-x^2/{2})}}
+\newcommand{\Sigmoid}{\frac{1}{1+e^{-x}}}
+\newcommand{\Swish}{\dfrac{x}{1+e^{-x}}}
+\newcommand{\GELU}{\dfrac{x}{2}\left(1+erf\left( \dfrac{x}{\sqrt{2}} \right)\right)}
+\newcommand{\Softplus}{log(1+e^x)}
+\usepackage{soul}
+\newcommand{\WRP}{\par\qquad\(\hookrightarrow\)\enspace}
+\input{acronyms}
+
+%\setlength{\belowcaptionskip}{-0.0cm}
+
+%\settopmatter{printacmref=false}
+%\setcopyright{none}
+%\renewcommand\footnotetextcopyrightpermission[1]{}
+%\pagestyle{plain}
+
+\begin{document}
+
+\title[E. Table-based Func. Approx. on FPGAs using Int. Splitting and BRAM Instantiation]{Efficient Table-based Function Approximation on FPGAs using Interval Splitting and BRAM Instantiation}
+%
+% The "author" command and its associated commands are used to define the authors and their affiliations.
+% Of note is the shared affiliation of the first two authors, and the "authornote" and "authornotemark" commands
+% used to denote shared contribution to the research.
+\author{Chetana Pradhan}
+\email{chetana.pradhan@fau.de}
+\author{Martin Letras}
+%\authornote{Both authors contributed equally to this research.}
+\email{martin.letras@fau.de}
+\orcid{0000-0002-1429-8982}
+\author{J{\"u}rgen Teich}
+\email{juergen.teich@fau.de}
+\affiliation{%
+  \institution{Hardware/Software Co-Design, Department of Computer Science, Friedrich-Alexander-Universit{\"a}t Erlangen-N{\"u}rnberg (FAU), Germany}
+  \streetaddress{Cauerstraße 11}
+  \city{Erlangen}
+  \state{Germany}
+  \postcode{91058}
+}
+% By default, the full list of authors will be used in the page headers. Often, this list is too long, and will overlap
+% other information printed in the page headers. This command allows the author to define a more concise list
+% of authors' names for this purpose.
+\renewcommand{\shortauthors}{Pradhan, Letras and Teich}
+% The abstract is a short summary of the work to be presented in the article.
+\begin{abstract}
+This paper proposes a novel approach for the generation of memory-efficient table-based function approximation circuits for edge devices in general, and FPGAs in particular.
+Given a function $f(x)$ to be approximated in a given interval $[x_0, x_0+a)$ and a maximum approximation error $\AbsError$, the goal is to determine a function table implementation with a minimized memory footprint, i.e., number of entries that need to be stored.
+Rather than state-of-the-art work performing an equidistant sampling of the given interval by so-called breakpoints and using linear interpolation between two adjacent breakpoints to determine $\Fx$ at the maximum error bound, we propose and compare three algorithms for splitting the given interval into sub-intervals to reduce the required memory footprint drastically based on the observation that in sub-intervals of low gradient, a coarser sampling grid may be assumed while guaranteeing the maximum interpolation error bound $\AbsError$.
+Experiments on elementary mathematical functions show that a large fraction in memory footprint may be saved.
+Second, a hardware architecture implementing the sub-interval selection, breakpoint lookup and interpolation at a latency of just 9 clock cycles is introduced.
+Third, for each generated circuit design, BRAMs are automatically instantiated rather than synthesizing the reduced footprint function table using LUT primitives providing an additional degree of resource efficiency.
+The approach presented here for FPGAs can equally be applied to other circuit technologies for fast and, at the same time, memory-optimized function approximation at the edge.\\
+\end{abstract}
+\begin{CCSXML}
+<ccs2012>
+   <concept>
+       <concept_id>10010583.10010662</concept_id>
+       <concept_desc>Hardware~Power and energy</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10010520.10010553.10010562.10010563</concept_id>
+       <concept_desc>Computer systems organization~Embedded hardware</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+ </ccs2012>
+\end{CCSXML}
+\ccsdesc[500]{Hardware~Power and energy}
+\ccsdesc[500]{Computer systems organization~Embedded hardware}
+\keywords{FPGA, Approximate Computing, Function Approximation, BRAM}
+% A "teaser" image appears between the author and affiliation information and the body 
+% of the document, and typically spans the page. 
+%%\begin{teaserfigure}
+%%  \includegraphics[width=\textwidth]{sampleteaser}
+%%  \caption{Seattle Mariners at Spring Training, 2010.}
+%%  \Description{Enjoying the baseball game from the third-base seats. Ichiro Suzuki preparing to bat.}
+%%  \label{fig:teaser}
+%%\end{teaserfigure}
+%
+% This command processes the author and affiliation and title information and builds
+% the first part of the formatted document.
+\input{tikz/definitions.tikz}
+\input{tikz/architecture.tikz}
+\input{tikz/plotsSynthesis.tikz}
+\input{tikz/plotsMemoryFootprint.tikz}
+\input{tikz/scaling.tikz}
+\input{tikz/tradeoffs.tikz}
+\input{tikz/errorPlots.tikz}
+\input{tikz/meanPlots.tikz}
+\input{tikz/numberSubItervals.tikz}
+\input{tikz/ResourceUsage.tikz}
+ 
+\maketitle
+\input{src/01-intro.tex}
+\input{src/03-fundamentals.tex}
+\input{src/04-reference}
+\input{src/05-proposed-method.tex}
+\input{src/06-hardware-implementation.tex}
+\input{src/07-results}
+\input{src/02-relwork.tex}
+\input{src/08-conclusions}
+
+
+% The acknowledgments section is defined using the "acks" environment (and NOT an unnumbered section). This ensures
+% the proper identification of the section in the article metadata, and the consistent spelling of the heading.
+\begin{acks}
+This work has been partially funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)
+under grants 45098171 and 146371743.
+\end{acks}
+%
+% The next two lines define the bibliography style to be used, and the bibliography file.
+%\bibliographystyle{ACM-Reference-Format}
+\bibliographystyle{unsrt}
+\bibliography{literature}
+\end{document}

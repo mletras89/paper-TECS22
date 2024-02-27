@@ -1,0 +1,83 @@
+\pgfdeclarepatternformonly{mydots}{\pgfqpoint{-1pt}{-1pt}}{\pgfqpoint{1pt}{1pt}}{\pgfqpoint{2pt}{2pt}}% original definition:               >\pgfqpoint{3pt}{3pt}
+{%
+  \pgfpathcircle{\pgfqpoint{0pt}{0pt}}{.5pt}%
+  \pgfusepath{fill}%
+}%
+
+\pgfdeclarepatternformonly{mynewdots}{\pgfqpoint{-1pt}{-1pt}}{\pgfqpoint{1pt}{1pt}}{\pgfqpoint{1.5pt}{1.5pt}}% original definition:        >\pgfqpoint{3pt}{3pt}
+{%
+  \pgfpathcircle{\pgfqpoint{0pt}{0pt}}{.5pt}%
+  \pgfusepath{fill}%
+}%
+
+
+\newcommand{\resultsMemory}{
+\pgfplotsset{height=6cm,width=10cm,compat=1.9}
+\begin{axis}[ylabel={\Large Memory Footprint},
+	ybar,
+%	enlarge x limits=0.07,
+	symbolic x coords={A,B,C,D},
+%	bar width=0.85cm, bar shift=-0.95cm,
+	xtick=data,
+	axis y line*=left,
+	ymin=0,
+    ymax=67000,
+    xticklabels={ ,  ,  , },
+    legend columns=2,
+    legend style={at={(0,-0.26)},anchor=west},
+	% bar shift=-0.3cm,
+	 %axis y discontinuity=parallel,
+]
+
+    %\addplot[fill=red]	coordinates {(A,69) (B,120) (C,80) (D,140) (E,79) (F,138) (G,74) (H, 119)};
+    \addplot[fill=brandeisblue!70,draw=black,bar shift=-0.4cm]	coordinates {(A,65536) (B,24713) (C,7681) (D,65536)};
+    \addplot[fill=applegreen!70,draw=black,bar shift=0cm] coordinates {(A,3242) (B,11524) (C,1506) (D,2360)};
+
+        %\addlegendimage{draw=black,fill=applegreen!70}
+        \addlegendentry{\Large $\Reference$}
+        
+        %\addlegendimage{draw=black,fill=brandeisblue}
+        \addlegendentry{\Large $\Proposed$}
+
+
+\end{axis}
+
+%\begin{axis}[ylabel=,
+%	enlarge x limits=0.07,
+%	ybar,
+%	symbolic x coords={A,B,C,D,E,F,G,H},
+%	bar width=0.85cm, bar shift=0cm,
+%	xtick=data,
+%	axis y line*=left,
+%	ymin=0,
+%    ymax=67000,
+%    xticklabels={ , , , }
+%]
+%
+%
+%    \addplot[fill=applegreen!70,draw=black]	coordinates {(A,3242) (B,11524) (C,1506) (D,2360)};
+%    
+%\end{axis}
+
+\begin{axis}[ylabel={\Large \begin{tabular}{c}Memory Footprint\\ Reduction [\%] \end{tabular}},
+	ybar,
+        legend style={at={(0.6,-0.26)},anchor=west},
+	%enlarge x limits=0.07,
+	symbolic x coords={A,B,C,D},
+	%bar width=0.85cm, bar shift=0.95cm,
+	xtick=data,
+	axis y line*=right,
+	ymin=0,
+	nodes near coords,
+    nodes near coords align={vertical},
+    ymax=110,
+    xticklabels={\Large $sin(x)$,\Large $tan(x)$,\Large $log(x)$,\Large $tanh(x)$}
+	% bar shift=-0.3cm,
+	 %axis y discontinuity=parallel,
+]
+
+    \addplot[fill=canaryyellow,draw=black,bar shift=0.4cm]	coordinates {(A,95) (B,53) (C,80) (D,96)};
+    \addlegendentry{\Large Reduction}
+
+\end{axis}
+}

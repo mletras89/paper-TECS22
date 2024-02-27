@@ -1,0 +1,192 @@
+\newcommand{\MeanPlots}{
+\pgfplotsset{every tick label/.append style={font=\huge}}
+    \begin{groupplot}[group style={group size= 3 by 3, 
+                      %y label at=edge left, 
+                      x descriptions at=edge bottom,
+                      %vertical sep=1.25cm
+                      },height=6cm,width=10cm,xlabel={\Huge$\omega$},
+		     legend style = {at={(-1.2,-0.3)},anchor=west},
+                      legend columns = 3,
+		      ylabel={\huge $mean(\Delta M_F) [\%]$},
+                      grid=both,
+                      xtick={0,0.05, 0.1, 0.15, 0.2, 0.25,0.3},
+                      xticklabels={0,0.05, 0.1, 0.15, 0.2, 0.25,0.3},
+                      xlabel shift={0.0cm},
+                      ylabel shift={0.25cm},
+                      % every major tick/.append style={very thick, major tick length=10pt, black},
+                      every major tick/.append style={very thick,black},
+		      ]
+        
+        \nextgroupplot[title={\huge $f(x)=e^x$ $[0.625,15.625)$},xlabel={}] %,ylabel={\huge $mean(\Delta M_F) [\%]$}]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,0) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,0) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/exp/mean_exp.csv};
+            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/exp/mean_exp.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/exp/mean_exp.csv};
+
+        \nextgroupplot[title={\huge $f(x)=log(x)$ $[0,5)$},ylabel={},xlabel={}]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,0) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,0) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/log/mean_log.csv};
+            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/log/mean_log.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/log/mean_log.csv};
+%
+        \nextgroupplot[title={\huge $f(x)=tan(x)$ $[-1.5,0)$},ylabel={},xlabel={}]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,0) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,0) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/tan/mean_tan.csv};
+            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/tan/mean_tan.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/tan/mean_tan.csv};
+% 
+        \nextgroupplot[title={\huge $f(x)=tanh(x)$ $[-8,0)$},yshift=-0.75cm,]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,0) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,0) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/tanh/mean_tanh.csv};
+            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/tanh/mean_tanh.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/tanh/mean_tanh.csv};
+% sigmoid
+        \nextgroupplot[title={\huge $f(x)=\dfrac{1}{1+e^{-x}}$ $[-10,0)$},yshift=-0.75cm,ylabel={}]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,0) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,0) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/sigmoid/mean_sigm.csv};
+            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/sigmoid/mean_sigm.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/sigmoid/mean_sigm.csv};
+
+        \nextgroupplot[title={\huge $f(x)=e^{(-x^{2}/2)}$ $[-6,0)$},yshift=-0.75cm,ylabel={}]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,0) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,0) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=1,col sep=comma] {result/gauss/mean_gauss.csv};
+            \addplot[hierarchical] table[x index =0,y index=2,col sep=comma] {result/gauss/mean_gauss.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=comma] {result/gauss/mean_gauss.csv};
+% swish
+        \nextgroupplot[title={\huge $f(x)=\dfrac{x}{1+e^{-x}}$ $[-5,5)$},yshift=-1.7cm,]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,0) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,0) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=2,col sep=tab] {result/swish/mean_swish.csv};
+            \addplot[hierarchical] table[x index =0,y index=1,col sep=tab] {result/swish/mean_swish.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=tab] {result/swish/mean_swish.csv};
+% GELU
+        \nextgroupplot[title={\huge $f(x)=\dfrac{x}{2}\left(1+erf\left(\dfrac{x}{\sqrt{2}}\right)\right)$ $[-5,5)$},yshift=-1.7cm,ylabel={}]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,0) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,0) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=2,col sep=tab] {result/GELU/mean_GELU.csv};
+            \addplot[hierarchical] table[x index =0,y index=1,col sep=tab] {result/GELU/mean_GELU.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=tab] {result/GELU/mean_GELU.csv};
+% softplus
+        \nextgroupplot[title={\huge $f(x)=log(1+e^x)$ $[-5,5)$},yshift=-1.7cm,ylabel={}]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,-10) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,-10) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=2,col sep=tab] {result/softplus/mean_softplus.csv};
+            \addplot[hierarchical] table[x index =0,y index=1,col sep=tab] {result/softplus/mean_softplus.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=tab] {result/softplus/mean_softplus.csv};
+
+   \end{groupplot}
+
+\node at (13.5,-6.6) {\huge [sigmoid]};
+\node at (23,-6.6) {\huge [gaussian]};
+\node at (4.25,-14.8) {\huge [swish]};
+\node at (13.5,-14.8) {\huge [GELU]};
+\node at (23,-14.8) {\huge [softplus]};
+}
+
+\newcommand{\NIntervalPlots}{
+\pgfplotsset{every tick label/.append style={font=\huge}}
+    \begin{groupplot}[group style={group size= 3 by 3, 
+                      x descriptions at=edge bottom,
+		      %vertical sep=0.7cm
+			},
+                      height=6cm,width=10cm,xlabel={\Huge$\omega$},
+		      legend style = {at={(-1.3,-0.55)},anchor=west},
+                      legend columns = 3,
+                      grid=both,
+		      ylabel={\huge No. of Intervals},
+                      xtick={0,0.05, 0.1, 0.15, 0.2, 0.25,0.3},
+                      xticklabels={0,0.05, 0.1, 0.15, 0.2, 0.25,0.3},
+                      xlabel shift={0.0cm},
+                      ylabel shift={0.25cm},
+                      every major tick/.append style={very thick,black},
+                      ]
+        
+        \nextgroupplot[title={\huge $f(x)=e^x$ $[0.625,15.625)$},xlabel={}]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,-10) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,-10) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=4,col sep=comma] {result/exp/mean_exp.csv};
+            \addplot[hierarchical] table[x index =0,y index=5,col sep=comma] {result/exp/mean_exp.csv};
+            \addplot[sequential] table[x index =0,y index=6,col sep=comma] {result/exp/mean_exp.csv};
+
+        \nextgroupplot[title={\huge $f(x)=log(x)$ $[0,5)$},ylabel={},xlabel={} ]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,-10) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,-10) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=4,col sep=comma] {result/log/mean_log.csv};
+            \addplot[hierarchical] table[x index =0,y index=5,col sep=comma] {result/log/mean_log.csv};
+            \addplot[sequential] table[x index =0,y index=6,col sep=comma] {result/log/mean_log.csv};
+
+        \nextgroupplot[title={\huge $f(x)=tan(x)$ $[-1.5,0)$},ylabel={},xlabel={} ]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,-10) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,-10) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=4,col sep=comma] {result/tan/mean_tan.csv};
+            \addplot[hierarchical] table[x index =0,y index=5,col sep=comma] {result/tan/mean_tan.csv};
+            \addplot[sequential] table[x index =0,y index=6,col sep=comma] {result/tan/mean_tan.csv};
+ 
+        \nextgroupplot[title={\huge $f(x)=tanh(x)$ $[-8,0)$},yshift=-0.75cm]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,-10) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,-10) rectangle (0.05,100);
+             \addplot[binary] table[x index =0,y index=4,col sep=comma] {result/tanh/mean_tanh.csv};
+            \addplot[hierarchical] table[x index =0,y index=5,col sep=comma] {result/tanh/mean_tanh.csv};
+            \addplot[sequential] table[x index =0,y index=6,col sep=comma] {result/tanh/mean_tanh.csv};
+% sigmoid
+        \nextgroupplot[title={\huge $f(x)=\dfrac{1}{1+e^{-x}}$ $[-10,0)$},yshift=-0.75cm,ylabel={}]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,-10) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,-10) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=4,col sep=comma] {result/sigmoid/mean_sigm.csv};
+            \addplot[hierarchical] table[x index =0,y index=5,col sep=comma] {result/sigmoid/mean_sigm.csv};
+            \addplot[sequential] table[x index =0,y index=6,col sep=comma] {result/sigmoid/mean_sigm.csv};
+
+        \nextgroupplot[title={\huge $f(x)=e^{({-x}^2/2)}$ $[-6,0)$},yshift=-0.75cm,ylabel={}]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,-10) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,-10) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=4,col sep=comma] {result/gauss/mean_gauss.csv};
+            \addplot[hierarchical] table[x index =0,y index=5,col sep=comma] {result/gauss/mean_gauss.csv};
+            \addplot[sequential] table[x index =0,y index=6,col sep=comma] {result/gauss/mean_gauss.csv};
+
+% swish
+        \nextgroupplot[title={\huge $f(x)=\dfrac{x}{1+e^{-x}}$ $[-5,5)$},yshift=-1.7cm,]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,-10) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,-10) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=2,col sep=tab] {result/swish/mean_swish-intervals.csv};
+            \addplot[hierarchical] table[x index =0,y index=1,col sep=tab] {result/swish/mean_swish-intervals.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=tab] {result/swish/mean_swish-intervals.csv};
+
+% GELU
+        \nextgroupplot[title={\huge $f(x)=\dfrac{x}{2}\left(1+erf\left(\dfrac{x}{\sqrt{2}}\right)\right)$ $[-5,5)$},yshift=-1.7cm,ylabel={}]
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,-10) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,-10) rectangle (0.05,100);
+
+            \addplot[binary] table[x index =0,y index=2,col sep=tab] {result/GELU/mean_GELU-intervals.csv};
+            \addplot[hierarchical] table[x index =0,y index=1,col sep=tab] {result/GELU/mean_GELU-intervals.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=tab] {result/GELU/mean_GELU-intervals.csv};
+
+% softplus
+        \nextgroupplot[title={\huge $f(x)=log(1+e^x)$ $[-5,5)$},yshift=-1.7cm,ylabel={}]
+	        \addlegendimage{binary}
+		\addlegendentry{\Huge binary};
+		\addlegendimage{hierarchical}
+		\addlegendentry{\Huge hierarchical};
+		\addlegendimage{sequential}
+		\addlegendentry{\Huge sequential};
+
+            \draw[draw,fill=green!10,opacity=0.5,densely dashed] (0,-10) rectangle (0.05,100);
+            \draw[draw,fill=none,densely dashed] (0,-10) rectangle (0.05,100);
+            \addplot[binary] table[x index =0,y index=2,col sep=tab] {result/softplus/mean_softplus-intervals.csv};
+            \addplot[hierarchical] table[x index =0,y index=1,col sep=tab] {result/softplus/mean_softplus-intervals.csv};
+            \addplot[sequential] table[x index =0,y index=3,col sep=tab] {result/softplus/mean_softplus-intervals.csv};
+
+   \end{groupplot}
+\node at (13.5,-6.6) {\huge [sigmoid]};
+\node at (23,-6.6) {\huge [gaussian]};
+\node at (4.25,-14.8) {\huge [swish]};
+\node at (13.5,-14.8) {\huge [GELU]};
+\node at (23,-14.8) {\huge [softplus]};
+
+}
+

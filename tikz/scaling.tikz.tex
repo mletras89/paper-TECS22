@@ -1,0 +1,37 @@
+\newcommand{\resultsScaling}{
+
+    \begin{axis}[
+    ylabel={Memory footprint},
+    ylabel style= {yshift=0pt},
+    %xlabel={\#jobs in DAG},
+   %width= \textwidth,
+%   height= 0.4\textwidth,
+    %xmax=350, ymax=35,
+    symbolic x coords={A,B,C,D,E,F,G,H},
+    xtick=data,
+    xticklabels={$sin(x)$, $tan(x)$, $log(x)$, $tanh(x)$, $f1$, $f2$, $f3$, $f4$},
+    ymode=log,
+     legend style={at={(0.45,-0.15)},anchor=north},
+     legend columns=3,
+    ]
+    % Lut Optimizer with 16 bits
+    \addplot[only marks, blue]  coordinates {(A,65536) (B,24713) (C,7681) (D,65536) (E,65536) (F,24713) (G,7681) (H,65536)};
+    % Lut Optimizer with 32 bits
+    \addplot[only marks, red]  coordinates {(A,2102253) (B,790785) (C,15361) (D,2094053) (E,2102253) (F,790785) (G,15361) (H,2094053)};
+    
+    \addplot[only marks,green]	coordinates {(A,3242) (B,11524) (C,1506) (D,2360) (E,3242) (F,11524) (G,1506) (H,2360)};
+
+        \addlegendimage{only marks, blue}
+        \addlegendentry{\small\textit{Reference 16 bits}}
+        
+        \addlegendimage{only marks, red}
+        \addlegendentry{\small\textit{Reference 32 bits}}
+        
+        \addlegendimage{only marks, green}
+        \addlegendentry{\small\textit{Proposed}}
+
+
+    \end{axis}
+
+
+}

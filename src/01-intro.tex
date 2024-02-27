@@ -1,0 +1,69 @@
+\section{Introduction}
+\label{sec:intro}
+Approximate computing~\cite{xu2015approximate} is a new research field that investigates the trade-off between accuracy, latency, energy~\cite{xu2015approximate,OrshanskySurvey}, and cost of computations. 
+\cref{fig:ac} presents a comparison between approximate computing and conventional computing.
+Here, approximate computing primes high-performance at the expense of low accuracy.
+For example, many applications like video and image processing tolerate a certain degree of errors made during acquisition, processing and rendering of images. 
+There already exists a plethora of work on approximate circuit design for basic arithmetic operations such as additions~\cite{adderBecher,Seo:2020, Echavarria:2016}, multiplications~\cite{Mult:2015,Mult:2019}, or divisions~\cite{anytimeBrand}. 
+However, much less effort has been invested on efficient implementation of function approximation in hardware including trigonometric, exponential, and logarithmic functions.
+Here, Taylor series expansions or iterative approximation techniques are well known and often applied, but these also come at either very high resource or latency demands. 
+Tabular representations of functions can serve as an alternative solution in case of small quantization and approximation errors. 
+Indeed, they play an important role in function approximation due to providing constant-time evaluations at the cost of high memory demands.
+\begin{figure}[t!]
+    \centering
+%\hspace{1.1cm}
+    \resizebox{!}{0.5\columnwidth}{
+    \begin{tikzpicture}
+        \tradeoffAC
+    \end{tikzpicture}
+}
+\caption{\label{fig:ac}Approximate computing (green) exploits the error tolerance and robustness of certain applications in order to trade-off accuracy against latency, energy and cost.}
+\end{figure}
+E.g., Matlab/Simulink~\cite{MATLAB:2019} already offers an available optimization framework named \ac{LUT} Optimizer~\cite{MATLAB:reference} that computes a function table approximation for a given mathematical function to be approximated within a given interval subject to a maximal approximation error.
+Notably, this framework also allows to semi-automatically generate code (C++ and VHDL) for tabular function approximations.
+Unfortunately, when synthesizing this VHDL code to a circuit implementation, e.g., for a \ac{FPGA} target, the tables are implemented quite inefficiently by using \acp{LUT} structures.
+Moreover,  as~\cite{MATLAB:reference} applies an equidistant sampling of a given interval, the table sizes can be prohibitively big to fit on an \ac{FPGA}, particularly in case of low required approximation errors.
+Consequently, techniques for lowering the number of samples and thus table sizes are required.
+In addition, novel techniques for \ac{HDL} generation and synthesis are needed for resource-efficient function approximation on modern \acp{FPGA}. 
+One contribution of this paper is to instantiate internal so-called \ac{BRAM} structures~\cite{bramXilinx}.
+These \acp{BRAM} can even be configured individually in terms of number of entries and bit width of each entry. 
+For example, a so-called BRAM18 block can be alternatively configured to store $16,384$ entries of 1 bit, $8,192$ entries of $2$ bits, or up to just $512$ entries of $32$ bits.
+Yet the main contribution of this paper is to introduce techniques for splitting a given domain of a function into distinct intervals to reduce the memory footprint of a function table that needs to be stored. 
+This is accomplished by a technique called {\em interval splitting}. 
+Three efficient interval splitting algorithms are introduced and compared based on the observation that in sub-intervals of low gradient, a coarser sampling can be chosen to guard a given maximal approximation error.\par
+In summary, this paper presents a novel table-based approach for function approximation proposing interval splitting to drastically reduce the memory footprint compared to a state-of-the-art method~\cite{MATLAB:reference} but without any sacrifice in approximation error bounds. 
+The contributions summarized in detail are: 
+\begin{itemize}
+\item Introduction of three \textit{interval splitting algorithms} based on the observation that in sub-intervals of low gradient, a coarser sampling grid may be assumed to satisfy a user-given maximum interpolation error bound $E_a$ at any point $\variable$ within a given interval $[x_0, x_0 +a)$ of interest.
+Accordingly, each sub-interval is assigned an individually optimized spacing between breakpoints. 
+The overall memory footprint is minimized by assigning a coarser breakpoint spacing to sub-intervals with small slope. 
+Only sub-intervals with larger slopes require a fine quantization in order to satisfy $\AbsError$.
+%On the first hand, those intervals with a pronounced slope have a fine-grained spacing and sampling grid. 
+%In consequence, more breakpoints are required. 
+%On the other hand, those intervals with a slight difference in the slope need fewer points to perform interpolation and fulfill the tolerable error margins. 
+The proposed algorithms deliver a partition of the given interval into proper sub-intervals such that a maximum approximation error bound $\AbsError$ is never violated over the whole interval range. 
+It is shown that memory footprint reductions of up to $70\,\%$ in average are achieved over tables optimized and generated using the state-of-the-art tool LUT Optimizer by Matlab/Simulink~\cite{MATLAB:2019}.
+%set of intervals with different error margins smaller than the maximum tolerable error. 	
+\item An \textit{automated design flow} that uses the interval-based tabular function approximation to generate a hardware description in VHDL automatically. 
+The proposed hardware circuit consists of three units. 
+First, an interval selection circuit determines the index of the sub-interval containing the two breakpoints closest to $\variable$.
+%the interval where the output is placed from a given input.
+Second, a table lookup unit that retrieves the two range values ($y$) of the breakpoints enclosing $\variable$. %from the tabular representation. 
+Finally, a linear interpolation is performed on these two looked-up values to return the approximation of $\Fx$. 
+The whole architecture (depicted in \cref{fig:architecture}) performs a function evaluation at a latency of 9 clock cycles.
+\item Moreover, instead of synthesizing the reduced footprint tables using LUTs, \acp{BRAM} are exploited and instantiated, providing an additional degree of resource efficiency. 
+\item Finally, as a proof of concept, we present experimental results on the approximation of nine benchmark functions as test cases, three of them belonging to well-known activation functions for \acp{ANN} including the functions \ac{Swish}, \ac{GELU} and Softplus, also known as smooth \ac{ReLU} function.
+The proposed methodology is shown to be able to synthesize constant low latency (9 clock cycles) circuit implementations for each test function.
+Particularly for \ac{ANN} activation functions, resource-efficient circuit implementations are crucial due to the huge number of calculations of these functions during the training and inference phase of a neural network~\cite{Pouyanfar:2018,Alom:2019}.
+%Here, the stress induced by the calculation of the activation functions might be reduced to just nine clock cycles. 
+%Moreover, the approximation might motivate the exploration of tradeoffs between power consumption and the accuracy of evaluation results. 
+\end{itemize}
+%\end{itemize}
+The paper is structured as follows:
+\cref{sec:fundamentals} presents fundamentals and definitions.
+\Cref{sec:reference} then presents a reference approach according to~\cite{MATLAB:reference} that will be used for comparison.
+Subsequently, \cref{sec:proposed} introduces the concept of interval splitting and presents three interval splitting algorithms.
+\cref{sec:hardware} presents the design flow and the proposed hardware architecture.
+Then, \cref{sec:results} presents the experimental results.
+\cref{sec:relwork} gives an overview on related work.
+Finally, \cref{sec:conclusion} concludes our work.
